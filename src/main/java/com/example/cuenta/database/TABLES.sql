@@ -1,3 +1,4 @@
+-- Active: 1764201070625@@127.0.0.1@3306@inventory_account
 CREATE DATABASE IF NOT EXISTS inventory_account;
 
 USE inventory_account;
@@ -31,4 +32,41 @@ CREATE TABLE gmail (
         estado,
         user_id
     )
+);
+
+CREATE TABLE account (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    email_id INT NOT NULL,
+    tipo VARCHAR(150) NOT NULL,
+    usuario VARCHAR(150) NOT NULL,
+    contraseña VARCHAR(150) NOT NULL,
+    activo BOOLEAN DEFAULT FALSE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (email_id) REFERENCES gmail (id),
+    INDEX idx_account_user_estado_fecha (
+        user_id,
+        activo,
+        fecha_registro DESC
+    ),
+    INDEX idx_account_tipo_estado_fecha (
+        tipo,
+        activo,
+        fecha_registro DESC
+    ),
+    INDEX idx_account_activo_user_tipo (activo, user_id, tipo),
+    INDEX idx_account_email_estado_fecha (
+        email_id,
+        activo,
+        fecha_registro
+    ),
+    INDEX idx_account_usuario_tipo_activo (usuario, tipo, activo),
+    INDEX idx_account_fecha_estado_user (
+        fecha_registro,
+        activo,
+        user_id
+    ),
+    INDEX idx_account_user_email_tipo (user_id, email_id, tipo),
+    INDEX idx_account_tipo_fecha_estado (tipo, fecha_registro, activo)
 );
