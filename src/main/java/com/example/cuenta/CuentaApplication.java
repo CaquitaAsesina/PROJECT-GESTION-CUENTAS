@@ -8,6 +8,7 @@ public class CuentaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CuentaApplication.class, args);
+		System.out.println("http://localhost:8080/api/user");
 	}
 
 }

@@ -23,7 +23,7 @@ public class User {
     private Long id;
 
     @Column(name = "administrador", unique = true, nullable = false, length = 20)
-    private String adminstrador;
+    private String administrador;
 
     @Column(name = "cuentas", columnDefinition = "INT DEFAULT 0")
     private Integer cuentas = 0;
