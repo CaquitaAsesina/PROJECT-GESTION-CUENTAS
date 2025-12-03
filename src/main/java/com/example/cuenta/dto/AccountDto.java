@@ -18,6 +18,7 @@ public class AccountDto {
     private String contraseña;
     private Boolean activo;
     private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaActualizacion;
 
     public AccountDto(Long user_id, Long gmail_id, String tipo, String contraseña, Boolean activo) {
         this.user_id = user_id;

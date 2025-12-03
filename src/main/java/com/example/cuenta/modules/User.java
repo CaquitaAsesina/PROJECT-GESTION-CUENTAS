@@ -31,11 +31,19 @@ public class User {
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+
     @PrePersist
     protected void onCreate() {
         if (fechaRegistro == null) {
             fechaRegistro = LocalDateTime.now();
         }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
     }
 
     @OneToMany(mappedBy = "user")

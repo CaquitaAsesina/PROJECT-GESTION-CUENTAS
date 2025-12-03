@@ -15,7 +15,7 @@ public class UserDto {
     private String administrador;
     private Integer cuentas;
     private LocalDateTime fechaRegistro;
-
+    private LocalDateTime fechaActualizacion;
     public UserDto(String administrador, Integer cuentas) {
         this.administrador = administrador;
         this.cuentas = cuentas;

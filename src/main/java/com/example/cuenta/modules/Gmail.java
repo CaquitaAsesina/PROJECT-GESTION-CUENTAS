@@ -39,6 +39,9 @@ public class Gmail {
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+
     @PrePersist
     protected void onCrate() {
         if (fechaRegistro == null) {
@@ -47,6 +50,12 @@ public class Gmail {
         if (estado == null) {
             estado = "DESCARTABLE";
         }
+        fechaActualizacion = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
     }
 
     @OneToMany(mappedBy = "gmail")

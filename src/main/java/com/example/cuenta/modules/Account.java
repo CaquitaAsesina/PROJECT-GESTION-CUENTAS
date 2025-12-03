@@ -46,6 +46,9 @@ public class Account {
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+
     @PrePersist
     protected void onCreate() {
         if (fechaRegistro == null) {
@@ -54,5 +57,11 @@ public class Account {
         if (activo == null) {
             activo = false;
         }
+        fechaActualizacion = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
     }
 }

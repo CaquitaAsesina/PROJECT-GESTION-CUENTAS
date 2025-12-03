@@ -17,6 +17,7 @@ public class GmailDto {
     private String contraseña;
     private Boolean estado;
     private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaActualizacion;
 
     public GmailDto(Long user_id, String correo, String contraseña, Boolean estado) {
         this.user_id = user_id;
