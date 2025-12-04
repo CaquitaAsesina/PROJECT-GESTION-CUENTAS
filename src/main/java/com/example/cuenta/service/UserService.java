@@ -19,8 +19,7 @@ public class UserService {
     private UserRepository userRepository;
 
     public UserDto createUser(UserDto usuario) {
-        Boolean results = userRepository.existsByAdministrador(usuario.getAdministrador());
-        if (results == true) {
+        if (userRepository.existsByAdministrador(usuario.getAdministrador())) {
             return null;
         }
         User user = new User();
@@ -71,7 +70,7 @@ public class UserService {
         return convertToDTO(user);
     }
 
-    public UserDto convertToDTO(User usuario) {
+    private UserDto convertToDTO(User usuario) {
         UserDto dto = new UserDto();
         dto.setId(usuario.getId());
         dto.setAdministrador(usuario.getAdministrador());

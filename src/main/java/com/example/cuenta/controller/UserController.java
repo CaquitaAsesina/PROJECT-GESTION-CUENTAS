@@ -19,6 +19,7 @@ import com.example.cuenta.service.UserService;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+    
     @Autowired
     @Qualifier("UserService")
     private UserService user;
