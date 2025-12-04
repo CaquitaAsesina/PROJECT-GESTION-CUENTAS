@@ -9,17 +9,17 @@ import com.example.cuenta.modules.Account;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    List<Account> findByUserId(Integer user_id);
+    List<Account> findByUserId(Long user_id);
 
-    List<Account> findByGmailId(Integer gmail_id);
+    List<Account> findByGmailId(Long gmail_id);
 
     List<Account> findByTipo(String tipo);
 
     List<Account> findByActivo(Boolean activo);
 
-    List<Account> findByUserIdAndActivo(Integer user_id, Boolean activo);
+    List<Account> findByUserIdAndActivo(Long user_id, Boolean activo);
 
-    List<Account> findByUserIdAndTipo(Integer user_id, String tipo);
+    List<Account> findByUserIdAndTipo(Long user_id, String tipo);
 
     List<Account> findByTipoAndActivo(String tipo, Boolean activo);
 

@@ -1,5 +1,8 @@
 package com.example.cuenta.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +45,30 @@ public class AccountService {
         }
         Account accountSave = accountRepository.save(account);
         return convertToDTO(accountSave);
+    }
+
+    public List<AccountDto> getAllAccounts() {
+        return accountRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public AccountDto getAccountById(Long id) {
+        return accountRepository.findById(id).map(this::convertToDTO).orElseThrow();
+    }
+
+    public List<AccountDto> getAccountsByUserId(Long user_id) {
+        return accountRepository.findByUserId(user_id).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<AccountDto> getAccountsByGmailId(Long gmail_id) {
+        return accountRepository.findByGmailId(gmail_id).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<AccountDto> getAccountsByTipo(String tipo) {
+        return accountRepository.findByTipo(tipo).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<AccountDto> getAccountsByActivo(Boolean activo) {
+        return accountRepository.findByActivo(activo).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     private AccountDto convertToDTO(Account cuenta) {
