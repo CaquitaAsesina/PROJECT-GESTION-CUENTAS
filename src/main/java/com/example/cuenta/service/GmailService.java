@@ -1,5 +1,8 @@
 package com.example.cuenta.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +38,26 @@ public class GmailService {
         }
         Gmail gmailSave = gmailRepository.save(gmail);
         return convertToDTO(gmailSave);
+    }
+
+    public GmailDto getGmailById(Long id) {
+        return gmailRepository.findById(id).map(this::convertToDTO).orElseThrow();
+    }
+
+    public GmailDto getGmailByCorreo(String correo) {
+        return gmailRepository.findByCorreo(correo).map(this::convertToDTO).orElseThrow();
+    }
+
+    public List<GmailDto> getAllGmails() {
+        return gmailRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<GmailDto> getGmailsByUserId(Long user_id) {
+        return gmailRepository.findByUserId(user_id).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<GmailDto> getGmailsByEstado(String estado) {
+        return gmailRepository.findByEstado(estado).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     private GmailDto convertToDTO(Gmail cuenta) {
