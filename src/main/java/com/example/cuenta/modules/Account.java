@@ -16,6 +16,7 @@ import lombok.*;
         @Index(name = "idx_account_user_email_tipo", columnList = "user_id, email_id, tipo"),
         @Index(name = "idx_account_tipo_fecha_estado", columnList = "tipo, fecha_registro, activo")
 })
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Account {

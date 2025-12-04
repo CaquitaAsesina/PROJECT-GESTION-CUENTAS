@@ -47,7 +47,7 @@ public class GmailController {
         return gmail.getGmailsByUserId(id);
     }
 
-    @GetMapping("/search/all/correo/{corroe}")
+    @GetMapping("/search/all/estado/{estado}")
     public List<GmailDto> getGmailsByEstado(@PathVariable String estado) {
         return gmail.getGmailsByEstado(estado);
     }
