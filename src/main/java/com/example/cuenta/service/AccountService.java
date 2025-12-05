@@ -14,6 +14,8 @@ import com.example.cuenta.repository.AccountRepository;
 import com.example.cuenta.repository.GmailRepository;
 import com.example.cuenta.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service("AccountService")
 public class AccountService {
 
@@ -89,10 +91,28 @@ public class AccountService {
     }
 
     // PUT
+    public AccountDto updateAccount(Long id, AccountDto cuenta) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        if (account == null) {
+            return null;
+        }
+        account.setTipo(cuenta.getTipo());
+        account.setUsuario(cuenta.getUsuario());
+        account.setContraseña(cuenta.getContraseña());
+        account.setActivo(cuenta.getActivo());
+        Account updateAccount = accountRepository.save(account);
+        return convertToDTO(updateAccount);
+    }
 
     // PATCH
 
     // DELETE
+    @Transactional
+    public AccountDto deleteAccount(Long id) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        accountRepository.delete(account);
+        return convertToDTO(account);
+    }
 
     private AccountDto convertToDTO(Account cuenta) {
         AccountDto dto = new AccountDto();

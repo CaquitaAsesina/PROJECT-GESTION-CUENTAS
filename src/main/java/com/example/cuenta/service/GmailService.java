@@ -12,6 +12,8 @@ import com.example.cuenta.modules.User;
 import com.example.cuenta.repository.GmailRepository;
 import com.example.cuenta.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service("GmailService")
 public class GmailService {
 
@@ -21,6 +23,28 @@ public class GmailService {
     @Autowired
     private UserRepository userRepository;
 
+    // GET
+    public GmailDto getGmailById(Long id) {
+        return gmailRepository.findById(id).map(this::convertToDTO).orElseThrow();
+    }
+
+    public GmailDto getGmailByCorreo(String correo) {
+        return gmailRepository.findByCorreo(correo).map(this::convertToDTO).orElseThrow();
+    }
+
+    public List<GmailDto> getAllGmails() {
+        return gmailRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<GmailDto> getGmailsByUserId(Long user_id) {
+        return gmailRepository.findByUserId(user_id).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<GmailDto> getGmailsByEstado(String estado) {
+        return gmailRepository.findByEstado(estado).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    // POST
     public GmailDto createGmail(GmailDto cuenta) {
         if (gmailRepository.existsByCorreo(cuenta.getCorreo())) {
             return null;
@@ -40,24 +64,25 @@ public class GmailService {
         return convertToDTO(gmailSave);
     }
 
-    public GmailDto getGmailById(Long id) {
-        return gmailRepository.findById(id).map(this::convertToDTO).orElseThrow();
+    // PUT
+    public GmailDto updateGmail(Long id, GmailDto cuenta) {
+        Gmail gmail = gmailRepository.findById(id).orElseThrow();
+        gmail.setCorreo(cuenta.getCorreo());
+        gmail.setContraseña(cuenta.getContraseña());
+        gmail.setEstado(cuenta.getEstado());
+        Gmail updateGmail = gmailRepository.save(gmail);
+        return convertToDTO(updateGmail);
     }
 
-    public GmailDto getGmailByCorreo(String correo) {
-        return gmailRepository.findByCorreo(correo).map(this::convertToDTO).orElseThrow();
-    }
+    // PATCH
 
-    public List<GmailDto> getAllGmails() {
-        return gmailRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
+    // DELETE
+    @Transactional
+    public GmailDto deleteGmail(Long id) {
+        Gmail gmail = gmailRepository.findById(id).orElseThrow();
+        gmailRepository.delete(gmail);
+        return convertToDTO(gmail);
 
-    public List<GmailDto> getGmailsByUserId(Long user_id) {
-        return gmailRepository.findByUserId(user_id).stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
-
-    public List<GmailDto> getGmailsByEstado(String estado) {
-        return gmailRepository.findByEstado(estado).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     private GmailDto convertToDTO(Gmail cuenta) {

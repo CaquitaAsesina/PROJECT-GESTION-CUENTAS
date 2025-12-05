@@ -18,6 +18,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    // GET
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public UserDto getUserById(Long id) {
+        return userRepository.findById(id).map(this::convertToDTO).orElseThrow();
+    }
+
+    public UserDto getUserByAdministrador(String administrador) {
+        return userRepository.findByAdministrador(administrador).map(this::convertToDTO).orElseThrow();
+    }
+
+    // POST
     public UserDto createUser(UserDto usuario) {
         if (userRepository.existsByAdministrador(usuario.getAdministrador())) {
             return null;
@@ -33,18 +47,7 @@ public class UserService {
         return convertToDTO(userSave);
     }
 
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
-
-    public UserDto getUserById(Long id) {
-        return userRepository.findById(id).map(this::convertToDTO).orElseThrow();
-    }
-
-    public UserDto getUserByAdministrador(String administrador) {
-        return userRepository.findByAdministrador(administrador).map(this::convertToDTO).orElseThrow();
-    }
-
+    // PUT
     public UserDto updateUser(Long id, UserDto usuario) {
         User user = userRepository.findById(id).orElseThrow();
         if (!user.getAdministrador().equalsIgnoreCase(usuario.getAdministrador())) {
@@ -59,6 +62,9 @@ public class UserService {
         User upadeUser = userRepository.save(user);
         return convertToDTO(upadeUser);
     }
+    // PATCH
+
+    // DELETE
 
     @Transactional
     public UserDto deleteUser(Long id) {
