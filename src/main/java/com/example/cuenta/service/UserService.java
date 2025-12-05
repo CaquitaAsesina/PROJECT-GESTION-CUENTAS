@@ -65,7 +65,6 @@ public class UserService {
     // PATCH
 
     // DELETE
-
     @Transactional
     public UserDto deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow();
