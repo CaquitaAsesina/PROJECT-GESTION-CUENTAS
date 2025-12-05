@@ -58,7 +58,7 @@ public class GmailController {
 
     // PUT
     @PutMapping("/update/id/{id}")
-    public GmailDto updateGmail(@PathVariable Long id, GmailDto cuenta) {
+    public GmailDto updateGmail(@PathVariable Long id, @RequestBody GmailDto cuenta) {
         return gmail.updateGmail(id, cuenta);
     }
 
