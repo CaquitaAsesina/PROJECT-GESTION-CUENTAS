@@ -38,12 +38,12 @@ public class GmailController {
         return gmail.getGmailByCorreo(correo);
     }
 
-    @GetMapping("/search/id/{id}")
+    @GetMapping("/search/all/id/{id}")
     public List<GmailDto> getGmailsByUserId(@PathVariable Long id) {
         return gmail.getGmailsByUserId(id);
     }
 
-    @GetMapping("/search/estado/{estado}")
+    @GetMapping("/search/all/stado/{estado}")
     public List<GmailDto> getGmailsByEstado(@PathVariable String estado) {
         return gmail.getGmailsByEstado(estado);
     }

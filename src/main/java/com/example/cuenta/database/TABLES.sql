@@ -3,11 +3,12 @@ CREATE DATABASE IF NOT EXISTS inventory_account;
 
 USE inventory_account;
 
-CREATE TABLE user (
+CREATE TABLE `user` (
     id INT PRIMARY KEY AUTO_INCREMENT,
     administrador VARCHAR(20) UNIQUE NOT NULL,
     cuentas INT DEFAULT 0,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_user_admin_cuentas (administrador, cuentas),
     INDEX idx_user_fecha_cuentas (fecha_registro, cuentas),
     INDEX idx_user_cuentas_fecha (
@@ -23,7 +24,8 @@ CREATE TABLE gmail (
     contraseña VARCHAR(100) DEFAULT NULL,
     estado VARCHAR(30) DEFAULT 'DESCARTABLE',
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES `user` (id),
     INDEX idx_gmail_user_estado (user_id, estado),
     INDEX idx_gmail_estado_fecha (estado, fecha_registro),
     INDEX idx_gmail_correo_estado (correo, estado),
@@ -43,7 +45,8 @@ CREATE TABLE account (
     contraseña VARCHAR(150) NOT NULL,
     activo BOOLEAN DEFAULT FALSE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES `user` (id),
     FOREIGN KEY (email_id) REFERENCES gmail (id),
     INDEX idx_account_user_estado_fecha (
         user_id,

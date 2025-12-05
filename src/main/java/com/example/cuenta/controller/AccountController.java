@@ -33,37 +33,37 @@ public class AccountController {
         return account.getAccountById(id);
     }
 
-    @GetMapping("/search/user_id/{user_id}")
+    @GetMapping("/search/all/user_id/{user_id}")
     public List<AccountDto> getAccountsByUserId(@PathVariable Long user_id) {
         return account.getAccountsByUserId(user_id);
     }
 
-    @GetMapping("/search/gmail_id/{gmail_id}")
+    @GetMapping("/search/all/gmail_id/{gmail_id}")
     public List<AccountDto> getAccountsByGmailId(@PathVariable Long gmail_id) {
         return account.getAccountsByGmailId(gmail_id);
     }
 
-    @GetMapping("/search/tipo/{tipo}")
+    @GetMapping("/search/all/tipo/{tipo}")
     public List<AccountDto> getAccountsByTipo(@PathVariable String tipo) {
         return account.getAccountsByTipo(tipo);
     }
 
-    @GetMapping("/search/activo/{activo}")
-    public List<AccountDto> getAccountsByActivo(@PathVariable Boolean tipo) {
-        return account.getAccountsByActivo(tipo);
+    @GetMapping("/search/all/activo/{activo}")
+    public List<AccountDto> getAccountsByActivo(@PathVariable Boolean activo) {
+        return account.getAccountsByActivo(activo);
     }
 
-    @GetMapping("/search/user_id/{user_id}/activo/{activo}")
+    @GetMapping("/search/all/user_id/{user_id}/activo/{activo}")
     public List<AccountDto> getAccountsByUserIdAndActivo(@PathVariable Long user_id, @PathVariable Boolean activo) {
         return account.getAccountsByUserIdAndActivo(user_id, activo);
     }
 
-    @GetMapping("/search/user_id/{user_id}/tipo/{tipo}")
+    @GetMapping("/search/all/user_id/{user_id}/tipo/{tipo}")
     public List<AccountDto> getAccountsByUserIdAndTipo(@PathVariable Long user_id, @PathVariable String tipo) {
         return account.getAccountsByUserIdAndTipo(user_id, tipo);
     }
 
-    @GetMapping("/search/tipo/{tipo}/activo/{activo}")
+    @GetMapping("/search/tall/ipo/{tipo}/activo/{activo}")
     public List<AccountDto> getAccountsByTipoAndActivo(@PathVariable String tipo, @PathVariable Boolean activo) {
         return account.getAccountsByTipoAndActivo(tipo, activo);
     }

@@ -49,7 +49,6 @@ public class UserController {
     // PATCH
 
     // DELETE
-
     @DeleteMapping("/delete/id/{id}")
     public UserDto deleteUser(@PathVariable Long id) {
         return user.deleteUser(id);
