@@ -19,16 +19,12 @@ import com.example.cuenta.service.UserService;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    
+
     @Autowired
     @Qualifier("UserService")
     private UserService user;
 
-    @PostMapping("/save")
-    public UserDto createUser(@RequestBody UserDto usuario) {
-        return user.createUser(usuario);
-    }
-
+    // GET
     @GetMapping("/all")
     public List<UserDto> getAllUsers() {
         return user.getAllUsers();
@@ -39,10 +35,20 @@ public class UserController {
         return user.getUserById(id);
     }
 
+    // POST
+    @PostMapping("/save")
+    public UserDto createUser(@RequestBody UserDto usuario) {
+        return user.createUser(usuario);
+    }
+
+    // PUT
     @PutMapping("/update/id/{id}")
     public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto usuario) {
         return user.updateUser(id, usuario);
     }
+    // PATCH
+
+    // DELETE
 
     @DeleteMapping("/delete/id/{id}")
     public UserDto deleteUser(@PathVariable Long id) {

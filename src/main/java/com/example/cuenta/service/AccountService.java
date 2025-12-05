@@ -26,27 +26,7 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public AccountDto createAccount(AccountDto cuenta) {
-        User user = userRepository.findById(cuenta.getUser_id()).orElseThrow();
-        Gmail gmail = gmailRepository.findById(cuenta.getGmail_id()).orElseThrow();
-        if (!gmail.getUser().getId().equals(user.getId())) {
-            return null;
-        }
-        Account account = new Account();
-        account.setUser(user);
-        account.setGmail(gmail);
-        account.setTipo(cuenta.getTipo());
-        account.setUsuario(cuenta.getUsuario());
-        account.setContraseña(cuenta.getContraseña());
-        if (cuenta.getActivo() == null) {
-            account.setActivo(false);
-        } else {
-            account.setActivo(cuenta.getActivo());
-        }
-        Account accountSave = accountRepository.save(account);
-        return convertToDTO(accountSave);
-    }
-
+    // GET
     public List<AccountDto> getAllAccounts() {
         return accountRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
@@ -70,6 +50,49 @@ public class AccountService {
     public List<AccountDto> getAccountsByActivo(Boolean activo) {
         return accountRepository.findByActivo(activo).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
+
+    public List<AccountDto> getAccountsByUserIdAndActivo(Long user_id, Boolean activo) {
+        return accountRepository.findByUserIdAndActivo(user_id, activo).stream().map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<AccountDto> getAccountsByUserIdAndTipo(Long user_id, String tipo) {
+        return accountRepository.findByUserIdAndTipo(user_id, tipo).stream().map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<AccountDto> getAccountsByTipoAndActivo(String tipo, Boolean activo) {
+        return accountRepository.findByTipoAndActivo(tipo, activo).stream().map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // POST
+    public AccountDto createAccount(AccountDto cuenta) {
+        User user = userRepository.findById(cuenta.getUser_id()).orElseThrow();
+        Gmail gmail = gmailRepository.findById(cuenta.getGmail_id()).orElseThrow();
+        if (!gmail.getUser().getId().equals(user.getId())) {
+            return null;
+        }
+        Account account = new Account();
+        account.setUser(user);
+        account.setGmail(gmail);
+        account.setTipo(cuenta.getTipo());
+        account.setUsuario(cuenta.getUsuario());
+        account.setContraseña(cuenta.getContraseña());
+        if (cuenta.getActivo() == null) {
+            account.setActivo(false);
+        } else {
+            account.setActivo(cuenta.getActivo());
+        }
+        Account accountSave = accountRepository.save(account);
+        return convertToDTO(accountSave);
+    }
+
+    // PUT
+
+    // PATCH
+
+    // DELETE
 
     private AccountDto convertToDTO(Account cuenta) {
         AccountDto dto = new AccountDto();

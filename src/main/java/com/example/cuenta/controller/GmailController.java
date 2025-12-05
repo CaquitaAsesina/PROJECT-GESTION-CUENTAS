@@ -22,11 +22,7 @@ public class GmailController {
     @Qualifier("GmailService")
     private GmailService gmail;
 
-    @PostMapping("/save")
-    public GmailDto createGmail(@RequestBody GmailDto cuenta) {
-        return gmail.createGmail(cuenta);
-    }
-
+    // GET
     @GetMapping("/all")
     public List<GmailDto> getAllGmails() {
         return gmail.getAllGmails();
@@ -42,14 +38,25 @@ public class GmailController {
         return gmail.getGmailByCorreo(correo);
     }
 
-    @GetMapping("/search/all/id/{id}")
+    @GetMapping("/search/id/{id}")
     public List<GmailDto> getGmailsByUserId(@PathVariable Long id) {
         return gmail.getGmailsByUserId(id);
     }
 
-    @GetMapping("/search/all/estado/{estado}")
+    @GetMapping("/search/estado/{estado}")
     public List<GmailDto> getGmailsByEstado(@PathVariable String estado) {
         return gmail.getGmailsByEstado(estado);
     }
+
+    // POST
+    @PostMapping("/save")
+    public GmailDto createGmail(@RequestBody GmailDto cuenta) {
+        return gmail.createGmail(cuenta);
+    }
+    // PUT
+
+    // PATCH
+
+    // DELETE
 
 }
