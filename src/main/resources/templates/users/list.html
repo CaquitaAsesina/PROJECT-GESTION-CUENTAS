@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!-- Declaración del tipo de documento HTML5 -->
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- xmlns:th: namespace de Thymeleaf para usar sus atributos especiales -->
+<!-- th:* son atributos de Thymeleaf que se procesan en el servidor -->
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Define la codificación de caracteres (UTF-8 = soporte para acentos) -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Hace que la página sea responsive en móviles -->
+
+    <title>Lista de Usuarios</title>
+    <!-- Título que aparece en la pestaña del navegador -->
+
+    <!-- Bootstrap CSS desde CDN (Content Delivery Network) -->
+    <!-- Framework CSS para hacer el diseño responsive y bonito -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Container de Bootstrap: centra el contenido y agrega márgenes -->
+    <div class="container mt-5">
+        <!-- mt-5: margin-top de Bootstrap (espaciado superior) -->
+
+        <!-- ENCABEZADO DE LA PÁGINA -->
+        <div class="row mb-4">
+            <!-- row: fila de Bootstrap para organizar columnas -->
+            <!-- mb-4: margin-bottom (espaciado inferior) -->
+
+            <div class="col-md-8">
+                <!-- col-md-8: columna que ocupa 8/12 del ancho en pantallas medianas -->
+                <h2>
+                    <i class="fas fa-users"></i> <!-- Ícono de usuarios -->
+                    Gestión de Usuarios
+                </h2>
+            </div>
+
+            <div class="col-md-4 text-end">
+                <!-- col-md-4: columna que ocupa 4/12 del ancho -->
+                <!-- text-end: alinea el contenido a la derecha -->
+
+                <!-- Botón para crear nuevo usuario -->
+                <!-- th:href="@{/users/new}": Thymeleaf genera la URL automáticamente -->
+                <!-- @{...} es una expresión de URL en Thymeleaf -->
+                <!-- Genera: href="/users/new" -->
+                <a th:href="@{/users/new}" class="btn btn-primary">
+                    <!-- btn btn-primary: clases de Bootstrap para botón azul -->
+                    <i class="fas fa-plus"></i> Nuevo Usuario
+                </a>
+            </div>
+        </div>
+
+        <!-- MENSAJES DE ÉXITO O ERROR -->
+        <!-- th:if="${success}": Solo muestra este div SI existe el atributo "success" en el Model -->
+        <!-- ${...} es una expresión de variable en Thymeleaf -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <!-- alert-success: alerta verde de Bootstrap -->
+            <!-- alert-dismissible: permite cerrar la alerta -->
+            <!-- fade show: animación de aparición -->
+
+            <i class="fas fa-check-circle"></i>
+            <!-- th:text="${success}": Reemplaza el contenido del span con el valor de "success" -->
+            <span th:text="${success}">Mensaje de éxito</span>
+
+            <!-- Botón para cerrar la alerta -->
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Mensaje de error (similar al de éxito pero rojo) -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <!-- alert-danger: alerta roja de Bootstrap -->
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}">Mensaje de error</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- TABLA DE USUARIOS -->
+        <div class="card">
+            <!-- card: componente de Bootstrap para contenedor con borde y sombra -->
+
+            <div class="card-body">
+                <!-- card-body: padding interno de la tarjeta -->
+
+                <!-- th:if="${users != null and !users.isEmpty()}": -->
+                <!-- Condición: Solo muestra la tabla SI users existe Y NO está vacía -->
+                <!-- !users.isEmpty() equivale a users.size() > 0 -->
+                <div th:if="${users != null and !users.isEmpty()}">
+
+                    <table class="table table-striped table-hover">
+                        <!-- table: clase base de Bootstrap para tablas -->
+                        <!-- table-striped: filas con colores alternados (cebra) -->
+                        <!-- table-hover: efecto hover al pasar el mouse -->
+
+                        <thead class="table-dark">
+                            <!-- thead: encabezado de la tabla -->
+                            <!-- table-dark: fondo oscuro para el encabezado -->
+                            <tr>
+                                <!-- tr: table row (fila) -->
+                                <th>ID</th>
+                                <!-- th: table header (celda de encabezado) -->
+                                <th>Administrador</th>
+                                <th>Cuentas</th>
+                                <th>Fecha Registro</th>
+                                <th>Última Actualización</th>
+                                <th class="text-center">Acciones</th>
+                                <!-- text-center: centra el texto -->
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <!-- tbody: cuerpo de la tabla -->
+
+                            <!-- th:each="user : ${users}": BUCLE for-each en Thymeleaf -->
+                            <!-- Por cada elemento en la lista "users", crea un <tr> -->
+                            <!-- "user" es la variable temporal (como en Java: for(User user : users)) -->
+                            <tr th:each="user : ${users}">
+
+                                <!-- th:text="${user.id}": Muestra el valor de user.getId() -->
+                                <!-- ${user.id} llama automáticamente al getter -->
+                                <td th:text="${user.id}">1</td>
+                                <!-- El contenido "1" es solo placeholder, Thymeleaf lo reemplazará -->
+
+                                <td th:text="${user.administrador}">admin1</td>
+
+                                <td>
+                                    <!-- Badge (etiqueta) para mostrar el número de cuentas -->
+                                    <span class="badge bg-info" th:text="${user.cuentas}">0</span>
+                                    <!-- bg-info: fondo azul claro -->
+                                </td>
+
+                                <td>
+                                    <!-- th:text="${#temporals.format(user.fechaRegistro, 'dd/MM/yyyy HH:mm')}": -->
+                                    <!-- #temporals: utilidad de Thymeleaf para formatear fechas -->
+                                    <!-- format(): formatea la fecha según el patrón dado -->
+                                    <!-- 'dd/MM/yyyy HH:mm': día/mes/año hora:minuto -->
+                                    <span th:text="${#temporals.format(user.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                                        01/01/2025 10:00
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span th:text="${#temporals.format(user.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                        01/01/2025 10:00
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <!-- Botones de acciones -->
+
+                                    <!-- BOTÓN VER -->
+                                    <!-- th:href="@{/users/{id}(id=${user.id})}": -->
+                                    <!-- Genera URL con parámetro: /users/5 -->
+                                    <!-- {id} es un placeholder que se reemplaza con el valor de user.id -->
+                                    <a th:href="@{/users/{id}(id=${user.id})}" class="btn btn-sm btn-info"
+                                        title="Ver detalles">
+                                        <!-- btn-sm: botón pequeño -->
+                                        <!-- btn-info: botón azul claro -->
+                                        <!-- title: tooltip que aparece al hacer hover -->
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <!-- BOTÓN EDITAR -->
+                                    <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-warning"
+                                        title="Editar">
+                                        <!-- btn-warning: botón amarillo -->
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <!-- BOTÓN ELIMINAR -->
+                                    <!-- onclick="return confirm('...')": -->
+                                    <!-- JavaScript para confirmar antes de eliminar -->
+                                    <!-- Si el usuario cancela, no se ejecuta el enlace -->
+                                    <a th:href="@{/users/delete/{id}(id=${user.id})}" class="btn btn-sm btn-danger"
+                                        title="Eliminar"
+                                        onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+                                        <!-- btn-danger: botón rojo -->
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MENSAJE SI NO HAY USUARIOS -->
+                <!-- th:if="${users == null or users.isEmpty()}": -->
+                <!-- Condición inversa: muestra este div SI la lista está vacía -->
+                <div th:if="${users == null or users.isEmpty()}" class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i>
+                    No hay usuarios registrados.
+                    <!-- th:href="@{/users/new}": enlace para crear el primer usuario -->
+                    <a th:href="@{/users/new}" class="alert-link">Crear el primero</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS desde CDN -->
+    <!-- Necesario para componentes interactivos (modales, dropdowns, alerts) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+<!-- 
+===== UBICACIÓN DEL ARCHIVO =====
+src/main/resources/templates/users/list.html
+
+===== FLUJO DE RENDERIZADO =====
+1. Controller ejecuta: return "users/list";
+2. Spring busca: templates/users/list.html
+3. Thymeleaf procesa todos los th:* atributos
+4. Reemplaza ${variables} con valores del Model
+5. Genera HTML estático final
+6. Envía HTML al navegador del usuario
+
+===== EJEMPLO DE RENDERIZADO =====
+
+THYMELEAF (en el servidor):
+<td th:text="${user.administrador}">admin1</td>
+
+HTML FINAL (enviado al navegador):
+<td>admin1</td>
+
+THYMELEAF:
+<a th:href="@{/users/edit/{id}(id=${user.id})}">
+
+HTML FINAL:
+<a href="/users/edit/5">
+
+===== VENTAJAS DE THYMELEAF =====
+✅ Sintaxis natural HTML
+✅ Los diseñadores pueden ver el HTML sin ejecutar el servidor
+✅ Integración perfecta con Spring
+✅ Seguridad contra XSS (escapa HTML automáticamente)
+✅ Validación en tiempo de compilación
+
+===== EXPRESIONES DE THYMELEAF =====
+${variable}        - Variable del Model
+@{/url}           - URL (agrega context path automáticamente)
+#{message}        - Mensajes de i18n (internacionalización)
+*{field}          - Campo del objeto actual (th:object)
+th:if             - Condicional
+th:each           - Bucle for
+th:text           - Texto (escapa HTML)
+th:utext          - Texto sin escapar (¡cuidado con XSS!)
+th:href           - Atributo href
+th:value          - Atributo value
+th:attr           - Atributos dinámicos
+-->

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<!-- Declaración HTML5 -->
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Namespace de Thymeleaf -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título dinámico: cambia según si es crear o editar -->
+    <!-- th:text="${user.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}": -->
+    <!-- Operador ternario en Thymeleaf (como en Java: condición ? verdadero : falso) -->
+    <!-- Si user.id es null = Crear, si tiene ID = Editar -->
+    <title th:text="${user.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}">Formulario Usuario</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- row justify-content-center: centra la columna horizontalmente -->
+        <div class="row justify-content-center">
+            <!-- col-md-8: columna de 8/12 del ancho en pantallas medianas -->
+            <div class="col-md-8">
+
+                <!-- CARD DEL FORMULARIO -->
+                <div class="card shadow">
+                    <!-- shadow: sombra sutil en Bootstrap -->
+
+                    <div class="card-header bg-primary text-white">
+                        <!-- bg-primary: fondo azul -->
+                        <!-- text-white: texto blanco -->
+
+                        <h4 class="mb-0">
+                            <!-- mb-0: margin-bottom 0 (sin espaciado inferior) -->
+
+                            <!-- Ícono dinámico según acción -->
+                            <i th:class="${user.id == null ? 'fas fa-user-plus' : 'fas fa-user-edit'}"></i>
+                            <!-- th:class: establece la clase dinámicamente -->
+                            <!-- Crea: fa-user-plus, Editar: fa-user-edit -->
+
+                            <!-- Título dinámico -->
+                            <span th:text="${user.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}">
+                                Formulario
+                            </span>
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- MENSAJES DE ERROR -->
+                        <!-- th:if="${error}": solo muestra si hay error -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span th:text="${error}">Error</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- FORMULARIO -->
+                        <!-- th:action="@{...}": URL de destino del formulario -->
+                        <!-- Si user.id existe (editar): POST /users/update/5 -->
+                        <!-- Si user.id es null (crear): POST /users -->
+                        <form th:action="${user.id != null ? '/users/update/' + user.id : '/users'}" th:object="${user}"
+                            method="post">
+                            <!-- th:object="${user}": -->
+                            <!-- Vincula el formulario completo con el objeto "user" del Model -->
+                            <!-- Ahora podemos usar *{campo} en lugar de ${user.campo} -->
+
+                            <!-- method="post": envía datos con POST (no GET) -->
+                            <!-- POST es más seguro y permite enviar más datos -->
+
+                            <!-- CAMPO: ADMINISTRADOR -->
+                            <div class="mb-3">
+                                <!-- mb-3: margin-bottom (espaciado entre campos) -->
+
+                                <label for="administrador" class="form-label">
+                                    <!-- form-label: estilo de Bootstrap para etiquetas -->
+                                    <i class="fas fa-user"></i> Nombre de Administrador
+                                    <span class="text-danger">*</span>
+                                    <!-- text-danger: color rojo para indicar campo obligatorio -->
+                                </label>
+
+                                <!-- th:field="*{administrador}": -->
+                                <!-- IMPORTANTE: esto hace 3 cosas automáticamente: -->
+                                <!-- 1. id="administrador" (para el atributo for del label) -->
+                                <!-- 2. name="administrador" (nombre del parámetro enviado) -->
+                                <!-- 3. value="${user.administrador}" (valor actual si existe) -->
+                                <!-- El * en lugar de $ indica que usa el th:object del form -->
+                                <input type="text" class="form-control" th:field="*{administrador}"
+                                    placeholder="Ingrese nombre de administrador" required>
+                                <!-- required: validación HTML5 (campo obligatorio) -->
+                                <!-- form-control: estilo de Bootstrap para inputs -->
+
+                                <!-- Texto de ayuda -->
+                                <div class="form-text">
+                                    <!-- form-text: texto pequeño de ayuda en Bootstrap -->
+                                    <i class="fas fa-info-circle"></i>
+                                    Debe ser único en el sistema
+                                </div>
+                            </div>
+
+                            <!-- CAMPO: CUENTAS -->
+                            <div class="mb-3">
+                                <label for="cuentas" class="form-label">
+                                    <i class="fas fa-hashtag"></i> Número de Cuentas
+                                </label>
+
+                                <!-- type="number": input HTML5 para números -->
+                                <!-- min="0": no permite números negativos -->
+                                <!-- th:field="*{cuentas}": vinculación bidireccional -->
+                                <!-- Si user.cuentas = 5, el input mostrará 5 -->
+                                <!-- Si el usuario escribe 10, se enviará cuentas=10 -->
+                                <input type="number" class="form-control" th:field="*{cuentas}" min="0" placeholder="0">
+
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Número de cuentas asociadas al usuario
+                                </div>
+                            </div>
+
+                            <!-- CAMPO OCULTO: ID (solo para edición) -->
+                            <!-- th:if="${user.id != null}": -->
+                            <!-- Solo incluye este campo si estamos editando -->
+                            <!-- En creación (id=null), este campo no existe -->
+                            <input type="hidden" th:if="${user.id != null}" th:field="*{id}">
+                            <!-- type="hidden": campo invisible, no se muestra en pantalla -->
+                            <!-- Se usa para enviar el ID al actualizar -->
+
+                            <!-- BOTONES DE ACCIÓN -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <!-- d-flex: display flex de Bootstrap -->
+                                <!-- justify-content-between: espacia los elementos en los extremos -->
+                                <!-- mt-4: margin-top -->
+
+                                <!-- BOTÓN VOLVER -->
+                                <a th:href="@{/users}" class="btn btn-secondary">
+                                    <!-- btn-secondary: botón gris -->
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+
+                                <!-- BOTÓN GUARDAR -->
+                                <button type="submit" class="btn btn-success">
+                                    <!-- type="submit": envía el formulario al hacer clic -->
+                                    <!-- btn-success: botón verde -->
+
+                                    <!-- Ícono y texto dinámicos según acción -->
+                                    <i th:class="${user.id == null ? 'fas fa-save' : 'fas fa-check'}"></i>
+                                    <span th:text="${user.id == null ? 'Guardar' : 'Actualizar'}">
+                                        Guardar
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- INFORMACIÓN ADICIONAL (solo en edición) -->
+                        <!-- th:if="${user.id != null}": solo si estamos editando -->
+                        <div th:if="${user.id != null}" class="mt-4">
+                            <hr>
+                            <!-- hr: línea horizontal separadora -->
+
+                            <h6 class="text-muted">
+                                <!-- text-muted: color gris para texto secundario -->
+                                <i class="fas fa-info-circle"></i> Información del Registro
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <strong>ID:</strong>
+                                        <span th:text="${user.id}">1</span>
+                                    </p>
+                                    <p class="mb-1">
+                                        <strong>Creado:</strong>
+                                        <!-- th:text="${#temporals.format(...)}" -->
+                                        <!-- Formatea la fecha: 15/01/2025 10:30 -->
+                                        <span th:text="${#temporals.format(user.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2025
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <strong>Última Actualización:</strong>
+                                        <span
+                                            th:text="${#temporals.format(user.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2025
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para validación personalizada (opcional) -->
+    <script>
+        // JavaScript para validación adicional del formulario
+        // Se ejecuta cuando el DOM está completamente cargado
+        document.addEventListener('DOMContentLoaded', function () {
+            // Obtiene el formulario
+            const form = document.querySelector('form');
+
+            // Agrega evento al enviar el formulario
+            form.addEventListener('submit', function (event) {
+                // Obtiene el valor del campo administrador
+                const administrador = document.querySelector('input[name="administrador"]').value;
+
+                // Validación: verifica que tenga al menos 3 caracteres
+                if (administrador.trim().length < 3) {
+                    // Previene el envío del formulario
+                    event.preventDefault();
+                    // Muestra alerta
+                    alert('El nombre de administrador debe tener al menos 3 caracteres');
+                    return false;
+                }
+
+                // Si pasa todas las validaciones, el formulario se envía
+                return true;
+            });
+        });
+    </script>
+</body>
+
+</html>
+
+<!-- 
+===== UBICACIÓN DEL ARCHIVO =====
+src/main/resources/templates/users/form.html
+
+===== FLUJO DE VINCULACIÓN DE DATOS =====
+
+CREAR NUEVO USUARIO:
+1. GET /users/new → showCreateForm()
+2. Controller crea UserDTO vacío: new UserDTO()
+3. Agrega al Model: model.addAttribute("user", userDTO)
+4. Retorna: "users/form"
+5. Thymeleaf renderiza form.html
+6. Campos vacíos: th:field="*{administrador}" → value=""
+7. Usuario llena el formulario
+8. Clic en "Guardar"
+9. POST /users
+10. @ModelAttribute convierte datos del form a UserDTO
+11. Controller llama userService.createUser(userDTO)
+
+EDITAR USUARIO EXISTENTE:
+1. GET /users/edit/5 → showEditForm(5)
+2. Controller busca usuario: userService.getUserById(5)
+3. Encuentra UserDTO con: id=5, administrador="admin1", cuentas=3
+4. Agrega al Model: model.addAttribute("user", userDTO)
+5. Retorna: "users/form"
+6. Thymeleaf renderiza el MISMO form.html
+7. Campos prellenados: th:field="*{administrador}" → value="admin1"
+8. Usuario modifica los datos
+9. Clic en "Actualizar"
+10. POST /users/update/5
+11. Controller llama userService.updateUser(5, userDTO)
+
+===== @ModelAttribute EXPLICADO =====
+
+HTML enviado:
+POST /users
+administrador=admin1&cuentas=5
+
+Spring recibe:
+@ModelAttribute("user") UserDTO userDTO
+
+Spring hace automáticamente:
+UserDTO userDTO = new UserDTO();
+userDTO.setAdministrador("admin1");
+userDTO.setCuentas(5);
+
+===== th:field vs th:value =====
+
+th:field="*{administrador}":
+✅ Genera: id, name, value automáticamente
+✅ Vinculación bidireccional
+✅ Usa el th:object del form
+Resultado: <input id="administrador" name="administrador" value="admin1">
+
+th:value="${user.administrador}":
+❌ Solo genera el value
+❌ Debes poner id y name manualmente
+Resultado: <input value="admin1"> (falta id y name)
+
+===== VENTAJAS DE THYMELEAF FORMS =====
+✅ Vinculación automática de datos
+✅ Pre-llenado de formularios para edición
+✅ Validación integrada con Bean Validation
+✅ Tokens CSRF automáticos (seguridad)
+✅ Manejo de errores de validación
+-->
