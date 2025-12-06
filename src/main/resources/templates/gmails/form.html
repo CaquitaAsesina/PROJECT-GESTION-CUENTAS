@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título dinámico según si es crear o editar -->
+    <title th:text="${gmail.id == null ? 'Nuevo Correo Gmail' : 'Editar Correo Gmail'}">Formulario Correo</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                <!-- CARD DEL FORMULARIO -->
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <!-- Ícono y título dinámicos -->
+                            <i th:class="${gmail.id == null ? 'fas fa-envelope-open' : 'fas fa-envelope'}"></i>
+                            <span th:text="${gmail.id == null ? 'Nuevo Correo Gmail' : 'Editar Correo Gmail'}">
+                                Formulario
+                            </span>
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- MENSAJES DE ERROR -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span th:text="${error}">Error</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- FORMULARIO -->
+                        <!-- th:action: URL de destino según si es crear o editar -->
+                        <form th:action="${gmail.id != null ? '/gmails/update/' + gmail.id : '/gmails'}"
+                            th:object="${gmail}" method="post">
+                            <!-- th:object="${gmail}": vincula el formulario con el objeto gmail -->
+
+                            <!-- CAMPO: USUARIO PROPIETARIO (SELECT/DROPDOWN) -->
+                            <div class="mb-3">
+                                <label for="userId" class="form-label">
+                                    <i class="fas fa-user"></i> Usuario Propietario
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <!-- SELECT: desplegable para elegir usuario -->
+                                <select class="form-select" th:field="*{user_id}" required>
+                                    <!-- th:field="*{userId}": vinculación bidireccional -->
+                                    <!-- Genera: id="userId", name="userId", selecciona el value actual -->
+
+                                    <option value="">-- Seleccione un usuario --</option>
+                                    <!-- Opción por defecto vacía -->
+
+                                    <!-- th:each: itera sobre la lista de usuarios -->
+                                    <!-- th:value: valor que se envía al servidor (el ID) -->
+                                    <!-- th:text: texto que ve el usuario (el nombre) -->
+                                    <option th:each="user : ${users}" th:value="${user.id}"
+                                        th:text="${user.administrador}">
+                                        Usuario
+                                    </option>
+                                    <!-- Ejemplo generado:
+                                         <option value="1">admin1</option>
+                                         <option value="2">admin2</option>
+                                    -->
+                                </select>
+
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Seleccione el usuario al que pertenece este correo
+                                </div>
+                            </div>
+
+                            <!-- CAMPO: CORREO ELECTRÓNICO -->
+                            <div class="mb-3">
+                                <label for="correo" class="form-label">
+                                    <i class="fas fa-at"></i> Correo Electrónico
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <!-- type="email": validación HTML5 para formato de email -->
+                                <input type="email" class="form-control" th:field="*{correo}"
+                                    placeholder="ejemplo@gmail.com" required>
+                                <!-- required: campo obligatorio -->
+
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Debe ser una dirección de correo válida y única
+                                </div>
+                            </div>
+
+                            <!-- CAMPO: CONTRASEÑA -->
+                            <div class="mb-3">
+                                <label for="contraseña" class="form-label">
+                                    <i class="fas fa-key"></i> Contraseña
+                                </label>
+
+                                <!-- Input group: combina input con botón -->
+                                <div class="input-group">
+                                    <!-- type="password": oculta la contraseña con *** -->
+                                    <input type="password" class="form-control" th:field="*{contraseña}"
+                                        id="passwordField" placeholder="Ingrese contraseña">
+
+                                    <!-- Botón para mostrar/ocultar contraseña -->
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePasswordVisibility()">
+                                        <!-- onclick: llama función JavaScript al hacer clic -->
+                                        <i class="fas fa-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Contraseña del correo Gmail (puede dejarse vacío)
+                                </div>
+                            </div>
+
+                            <!-- CAMPO: ESTADO (SELECT/DROPDOWN) -->
+                            <div class="mb-3">
+                                <label for="estado" class="form-label">
+                                    <i class="fas fa-tags"></i> Estado
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <select class="form-select" th:field="*{estado}" required>
+                                    <!-- Opciones predefinidas de estados -->
+                                    <option value="ACTIVO">
+                                        <i class="fas fa-check-circle"></i> Activo
+                                    </option>
+                                    <option value="DESCARTABLE">
+                                        <i class="fas fa-trash-alt"></i> Descartable
+                                    </option>
+                                    <option value="BLOQUEADO">
+                                        <i class="fas fa-ban"></i> Bloqueado
+                                    </option>
+                                    <option value="SUSPENDIDO">
+                                        <i class="fas fa-pause-circle"></i> Suspendido
+                                    </option>
+                                </select>
+                                <!-- th:field selecciona automáticamente el valor actual -->
+                                <!-- Si gmail.estado = "ACTIVO", esa opción estará selected -->
+
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Estado actual del correo Gmail
+                                </div>
+                            </div>
+
+                            <!-- CAMPO OCULTO: ID (solo para edición) -->
+                            <input type="hidden" th:if="${gmail.id != null}" th:field="*{id}">
+                            <!-- Solo existe si estamos editando -->
+
+                            <!-- CAMPO OCULTO: USER ID (para mantenerlo en edición) -->
+                            <!-- Opcional: si no quieres que se pueda cambiar el usuario al editar -->
+                            <!-- <input type="hidden" th:if="${gmail.id != null}" th:field="*{userId}"> -->
+
+                            <!-- BOTONES DE ACCIÓN -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <!-- BOTÓN VOLVER -->
+                                <a th:href="@{/gmails}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+
+                                <!-- BOTÓN GUARDAR -->
+                                <button type="submit" class="btn btn-success">
+                                    <i th:class="${gmail.id == null ? 'fas fa-save' : 'fas fa-check'}"></i>
+                                    <span th:text="${gmail.id == null ? 'Guardar' : 'Actualizar'}">
+                                        Guardar
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- INFORMACIÓN ADICIONAL (solo en edición) -->
+                        <div th:if="${gmail.id != null}" class="mt-4">
+                            <hr>
+                            <h6 class="text-muted">
+                                <i class="fas fa-info-circle"></i> Información del Registro
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <strong>ID:</strong>
+                                        <span th:text="${gmail.id}">1</span>
+                                    </p>
+                                    <p class="mb-1">
+                                        <strong>Creado:</strong>
+                                        <span th:text="${#temporals.format(gmail.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2025
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <strong>Última Actualización:</strong>
+                                        <span
+                                            th:text="${#temporals.format(gmail.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2025
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript para mostrar/ocultar contraseña -->
+    <script>
+        // Función para alternar visibilidad de la contraseña
+        function togglePasswordVisibility() {
+            // Obtiene el input de contraseña
+            const passwordField = document.getElementById('passwordField');
+            // Obtiene el ícono del botón
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            // Verifica el tipo actual del input
+            if (passwordField.type === 'password') {
+                // Si está como password, cambia a text para mostrar
+                passwordField.type = 'text';
+                // Cambia el ícono a "ojo cerrado"
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                // Si está como text, cambia a password para ocultar
+                passwordField.type = 'password';
+                // Cambia el ícono a "ojo abierto"
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // Validación adicional del formulario
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+
+            form.addEventListener('submit', function (event) {
+                // Obtiene los valores de los campos
+                const correo = document.querySelector('input[name="correo"]').value;
+                const userId = document.querySelector('select[name="userId"]').value;
+
+                // Validación: usuario debe estar seleccionado
+                if (!userId || userId === '') {
+                    event.preventDefault();
+                    alert('Debe seleccionar un usuario propietario');
+                    return false;
+                }
+
+                // Validación: formato de correo (adicional a HTML5)
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(correo)) {
+                    event.preventDefault();
+                    alert('El formato del correo electrónico no es válido');
+                    return false;
+                }
+
+                // Si pasa todas las validaciones
+                return true;
+            });
+        });
+    </script>
+</body>
+
+</html>
+
+<!-- 
+===== UBICACIÓN DEL ARCHIVO =====
+src/main/resources/templates/gmails/form.html
+
+===== CARACTERÍSTICAS ESPECIALES =====
+
+1. SELECT DE USUARIOS:
+   - Desplegable con todos los usuarios disponibles
+   - th:each itera sobre ${users} del Model
+   - th:value establece el ID del usuario
+   - th:text muestra el nombre del usuario
+   - th:field selecciona automáticamente el usuario actual (en edición)
+
+2. VALIDACIÓN DE EMAIL:
+   - type="email": validación HTML5 automática
+   - JavaScript adicional para formato de correo
+   - Backend valida duplicados
+
+3. CAMPO DE CONTRASEÑA:
+   - Botón para mostrar/ocultar
+   - JavaScript alterna entre type="password" y type="text"
+   - Ícono cambia: ojo abierto ↔ ojo cerrado
+
+4. SELECT DE ESTADOS:
+   - Opciones predefinidas: ACTIVO, DESCARTABLE, BLOQUEADO, SUSPENDIDO
+   - th:field selecciona automáticamente el estado actual
+
+===== FLUJO DE DATOS DEL SELECT =====
+
+Backend (Controller):
+List<UserDTO> users = userService.getAllUsers();
+model.addAttribute("users", users);
+
+HTML (Thymeleaf):
+<select th:field="*{userId}">
+    <option th:each="user : ${users}" 
+            th:value="${user.id}" 
+            th:text="${user.administrador}">
+    </option>
+</select>
+
+HTML Generado (enviado al navegador):
+<select id="userId" name="userId">
+    <option value="">-- Seleccione --</option>
+    <option value="1">admin1</option>
+    <option value="2" selected>admin2</option>  ← selected si userId=2
+    <option value="3">admin3</option>
+</select>
+
+Cuando el usuario envía el formulario:
+POST /gmails
+userId=2&correo=test@gmail.com&contraseña=pass123&estado=ACTIVO
+
+Spring recibe:
+@ModelAttribute GmailDTO gmailDTO
+gmailDTO.setUserId(2);
+gmailDTO.setCorreo("test@gmail.com");
+gmailDTO.setContraseña("pass123");
+gmailDTO.setEstado("ACTIVO");
+
+===== th:field EN SELECTS =====
+
+th:field="*{userId}" en un <select> hace 3 cosas:
+1. Genera id="userId"
+2. Genera name="userId"
+3. Marca con selected la opción cuyo value coincida con gmail.getUserId()
+
+Ejemplo:
+Si gmail.getUserId() = 2
+→ <option value="2" selected>admin2</option>
+-->

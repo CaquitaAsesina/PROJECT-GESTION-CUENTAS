@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título dinámico con el correo -->
+    <title th:text="|Gmail: ${gmail.correo}|">Detalles Correo</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+
+                <!-- BREADCRUMB (migas de pan) -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/gmails}">
+                                <i class="fas fa-envelope"></i> Correos Gmail
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Detalles
+                        </li>
+                    </ol>
+                </nav>
+
+                <!-- CARD PRINCIPAL -->
+                <div class="card shadow-lg">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-envelope-open-text"></i>
+                                Información del Correo Gmail
+                            </h4>
+
+                            <!-- Badge con el ID -->
+                            <span class="badge bg-light text-dark">
+                                ID: <span th:text="${gmail.id}">1</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- SECCIÓN: INFORMACIÓN PRINCIPAL -->
+                        <div class="row mb-4">
+                            <!-- CORREO ELECTRÓNICO -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light h-100">
+                                    <!-- h-100: altura completa para igualar cards -->
+                                    <div class="card-body">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-at text-primary"></i> Correo Electrónico
+                                        </h6>
+                                        <p class="fs-5 mb-0">
+                                            <!-- fs-5: font-size grande -->
+                                            <strong th:text="${gmail.correo}">correo@gmail.com</strong>
+                                        </p>
+                                        <!-- Botón para copiar correo -->
+                                        <button class="btn btn-sm btn-outline-primary mt-2"
+                                            onclick="copyToClipboard(this)" th:attr="data-text=${gmail.correo}">
+                                            <!-- th:attr: establece atributo data-text con el correo -->
+                                            <i class="fas fa-copy"></i> Copiar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CONTRASEÑA -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-key text-warning"></i> Contraseña
+                                        </h6>
+                                        <p class="fs-5 mb-0">
+                                            <!-- Contraseña oculta por defecto -->
+                                            <code id="passwordField" style="font-size: 1.2rem;">
+                                                ••••••••••••
+                                            </code>
+                                        </p>
+                                        <!-- Botones para mostrar y copiar -->
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="togglePassword()"
+                                                th:attr="data-password=${gmail.contraseña}">
+                                                <i class="fas fa-eye" id="toggleIcon"></i>
+                                                <span id="toggleText">Mostrar</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="copyPassword()"
+                                                th:attr="data-password=${gmail.contraseña}">
+                                                <i class="fas fa-copy"></i> Copiar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN: ESTADO Y PROPIETARIO -->
+                        <div class="row mb-4">
+                            <!-- ESTADO -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-tags"></i> Estado Actual
+                                        </h6>
+                                        <!-- Badge grande con color dinámico -->
+                                        <h3>
+                                            <span class="badge"
+                                                th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 
+                                                                  (gmail.estado == 'DESCARTABLE' ? 'bg-warning' : 
+                                                                  (gmail.estado == 'BLOQUEADO' ? 'bg-danger' : 'bg-secondary'))}">
+                                                <!-- Operador ternario anidado para color -->
+                                                <!-- ACTIVO → verde, DESCARTABLE → amarillo, BLOQUEADO → rojo, otros → gris -->
+
+                                                <!-- Ícono según estado -->
+                                                <i
+                                                    th:class="${gmail.estado == 'ACTIVO' ? 'fas fa-check-circle' : 
+                                                              (gmail.estado == 'DESCARTABLE' ? 'fas fa-trash-alt' : 
+                                                              (gmail.estado == 'BLOQUEADO' ? 'fas fa-ban' : 'fas fa-question-circle'))}">
+                                                </i>
+                                                <span th:text="${gmail.estado}">ACTIVO</span>
+                                            </span>
+                                        </h3>
+
+                                        <!-- Descripción del estado -->
+                                        <p class="text-muted mt-2 mb-0">
+                                            <small>
+                                                <!-- th:switch para mensajes según estado -->
+                                                <span th:switch="${gmail.estado}">
+                                                    <span th:case="'ACTIVO'">
+                                                        ✓ Cuenta en uso activo
+                                                    </span>
+                                                    <span th:case="'DESCARTABLE'">
+                                                        ⚠️ Cuenta temporal o descartable
+                                                    </span>
+                                                    <span th:case="'BLOQUEADO'">
+                                                        ⛔ Cuenta bloqueada o suspendida
+                                                    </span>
+                                                    <span th:case="'SUSPENDIDO'">
+                                                        ⏸️ Cuenta temporalmente suspendida
+                                                    </span>
+                                                    <span th:case="*">
+                                                        Estado no especificado
+                                                    </span>
+                                                </span>
+                                            </small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- USUARIO PROPIETARIO -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-user text-info"></i> Usuario Propietario
+                                        </h6>
+
+                                        <!-- Información del usuario -->
+                                        <p class="mb-2">
+                                            <strong>Nombre:</strong>
+                                            <span th:text="${user.administrador}">admin1</span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>ID Usuario:</strong>
+                                            <span class="badge bg-info" th:text="${user.id}">1</span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>Cuentas totales:</strong>
+                                            <span class="badge bg-secondary" th:text="${user.cuentas}">0</span>
+                                        </p>
+
+                                        <!-- Enlace para ver usuario -->
+                                        <a th:href="@{/users/{id}(id=${user.id})}"
+                                            class="btn btn-sm btn-outline-info mt-2">
+                                            <i class="fas fa-user-circle"></i> Ver Usuario
+                                        </a>
+
+                                        <!-- Enlace para ver otros correos del usuario -->
+                                        <a th:href="@{/gmails/user_id/{user_id}(user_id=${user.id})}"
+                                            class="btn btn-sm btn-outline-secondary mt-2">
+                                            <i class="fas fa-envelope"></i> Sus Correos
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- SECCIÓN: HISTORIAL DE FECHAS -->
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-calendar-alt"></i> Historial de Fechas
+                        </h6>
+
+                        <div class="row mb-4">
+                            <!-- FECHA DE REGISTRO -->
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-success">
+                                            <i class="fas fa-calendar-plus"></i> Fecha de Registro
+                                        </h6>
+                                        <p class="card-text fs-5">
+                                            <!-- Fecha formateada -->
+                                            <span th:text="${#temporals.format(gmail.fechaRegistro, 'dd/MM/yyyy')}">
+                                                01/01/2025
+                                            </span>
+                                        </p>
+                                        <small class="text-muted">
+                                            <!-- Hora formateada -->
+                                            <i class="fas fa-clock"></i>
+                                            <span th:text="${#temporals.format(gmail.fechaRegistro, 'hh:mm:ss a')}">
+                                                10:30:45 AM
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ÚLTIMA ACTUALIZACIÓN -->
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-primary">
+                                            <i class="fas fa-calendar-check"></i> Última Actualización
+                                        </h6>
+                                        <p class="card-text fs-5">
+                                            <span
+                                                th:text="${#temporals.format(gmail.fechaActualizacion, 'dd/MM/yyyy')}">
+                                                01/01/2025
+                                            </span>
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i>
+                                            <span
+                                                th:text="${#temporals.format(gmail.fechaActualizacion, 'hh:mm:ss a')}">
+                                                03:45:30 PM
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DÍAS DESDE CREACIÓN -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Correo registrado hace: </strong>
+                            <!-- th:with: define variable temporal -->
+                            <span th:with="dias=${#temporals.daysBetween(gmail.fechaRegistro, #temporals.createNow())}">
+                                <span th:text="|${dias} día(s)|">X días</span>
+                            </span>
+                        </div>
+
+                        <hr>
+
+                        <!-- TABLA RESUMEN COMPLETO -->
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-table"></i> Resumen Completo
+                        </h6>
+
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th class="w-25 bg-light">
+                                        <i class="fas fa-hashtag text-primary"></i> ID
+                                    </th>
+                                    <td th:text="${gmail.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-at text-primary"></i> Correo
+                                    </th>
+                                    <td th:text="${gmail.correo}">correo@gmail.com</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-key text-primary"></i> Contraseña
+                                    </th>
+                                    <td>
+                                        <code>••••••••••</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-2"
+                                            onclick="alert(this.getAttribute('data-password'))"
+                                            th:attr="data-password=${gmail.contraseña}">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-tags text-primary"></i> Estado
+                                    </th>
+                                    <td>
+                                        <span class="badge"
+                                            th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 
+                                                              (gmail.estado == 'DESCARTABLE' ? 'bg-warning' : 'bg-danger')}"
+                                            th:text="${gmail.estado}">
+                                            ACTIVO
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-user text-primary"></i> Propietario
+                                    </th>
+                                    <td>
+                                        <span th:text="${user.administrador}">admin1</span>
+                                        <span class="badge bg-info ms-2" th:text="|ID: ${user.id}|">ID: 1</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-calendar-plus text-primary"></i> Fecha Registro
+                                    </th>
+                                    <td>
+                                        <!-- Formato largo completo -->
+                                        <span
+                                            th:text="${#temporals.format(gmail.fechaRegistro, 'EEEE, dd \'de\' MMMM \'de\' yyyy, hh:mm:ss a')}">
+                                            Miércoles, 15 de Enero de 2025, 10:30:45 AM
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-calendar-check text-primary"></i> Última Actualización
+                                    </th>
+                                    <td>
+                                        <span
+                                            th:text="${#temporals.format(gmail.fechaActualizacion, 'EEEE, dd \'de\' MMMM \'de\' yyyy, hh:mm:ss a')}">
+                                            Miércoles, 15 de Enero de 2025, 03:45:30 PM
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PIE DE TARJETA CON BOTONES -->
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <!-- Botones izquierda -->
+                            <div>
+                                <a th:href="@{/gmails}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver a la Lista
+                                </a>
+                            </div>
+
+                            <!-- Botones derecha -->
+                            <div>
+                                <a th:href="@{/gmails/edit/{id}(id=${gmail.id})}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+
+                                <a th:href="@{/gmails/delete/{id}(id=${gmail.id})}" class="btn btn-danger"
+                                    onclick="return confirm('¿Está seguro de eliminar este correo?');">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        // FUNCIÓN: Alternar visibilidad de contraseña
+        function togglePassword() {
+            const passwordField = document.getElementById('passwordField');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            const password = document.querySelector('button[onclick="togglePassword()"]')
+                .getAttribute('data-password');
+
+            if (passwordField.textContent === '••••••••••••') {
+                // Mostrar contraseña
+                passwordField.textContent = password;
+                toggleIcon.className = 'fas fa-eye-slash';
+                toggleText.textContent = 'Ocultar';
+            } else {
+                // Ocultar contraseña
+                passwordField.textContent = '••••••••••••';
+                toggleIcon.className = 'fas fa-eye';
+                toggleText.textContent = 'Mostrar';
+            }
+        }
+
+        // FUNCIÓN: Copiar contraseña al portapapeles
+        function copyPassword() {
+            const password = document.querySelector('button[onclick="copyPassword()"]')
+                .getAttribute('data-password');
+
+            // Copia al portapapeles usando la API moderna
+            navigator.clipboard.writeText(password).then(function () {
+                // Muestra alerta de éxito
+                alert('Contraseña copiada al portapapeles');
+            }).catch(function (err) {
+                // Si falla, usa método alternativo
+                console.error('Error al copiar: ', err);
+                alert('Error al copiar la contraseña');
+            });
+        }
+
+        // FUNCIÓN: Copiar texto genérico al portapapeles
+        function copyToClipboard(button) {
+            const text = button.getAttribute('data-text');
+
+            navigator.clipboard.writeText(text).then(function () {
+                // Cambia temporalmente el texto del botón
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-outline-primary');
+
+                // Restaura el botón después de 2 segundos
+                setTimeout(function () {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-primary');
+                }, 2000);
+            }).catch(function (err) {
+                console.error('Error al copiar: ', err);
+                alert('Error al copiar');
+            });
+        }
+    </script>
+</body>
+
+</html>
+
+<!-- 
+===== UBICACIÓN DEL ARCHIVO =====
+src/main/resources/templates/gmails/view.html
+
+===== CARACTERÍSTICAS ESPECIALES =====
+
+1. CONTRASEÑA CON MÚLTIPLES OPCIONES:
+   - Mostrar/Ocultar con botón
+   - Copiar al portapapeles
+   - Alert para ver rápidamente
+
+2. ESTADO CON COLOR DINÁMICO Y DESCRIPCIÓN:
+   - Badge grande con ícono
+   - Mensaje descriptivo según estado
+   - th:switch para diferentes casos
+
+3. INFORMACIÓN DEL USUARIO PROPIETARIO:
+   - Nombre, ID, cantidad de cuentas
+   - Enlace para ver detalles del usuario
+   - Enlace para ver otros correos del usuario
+
+4. BOTÓN COPIAR CON FEEDBACK VISUAL:
+   - Usa navigator.clipboard API
+   - Cambia a "Copiado" con check verde
+   - Se restaura después de 2 segundos
+
+5. TABLA RESUMEN COMPLETA:
+   - Todos los datos en formato tabular
+   - Fechas en formato largo completo
+   - Fácil de leer y escanear
+
+===== OPERADOR TERNARIO ANIDADO =====
+
+th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 
+                (gmail.estado == 'DESCARTABLE' ? 'bg-warning' : 
+                (gmail.estado == 'BLOQUEADO' ? 'bg-danger' : 'bg-secondary'))}"
+
+Lógica:
+1. ¿ACTIVO? → bg-success (verde)
+2. NO → ¿DESCARTABLE? → bg-warning (amarillo)
+3. NO → ¿BLOQUEADO? → bg-danger (rojo)
+4. NO → bg-secondary (gris)
+
+===== CLIPBOARD API =====
+
+navigator.clipboard.writeText(text)
+- API moderna para copiar al portapapeles
+- Requiere HTTPS en producción (http://localhost funciona)
+- Retorna una Promise
+- Alternativa: document.execCommand('copy') (obsoleto)
+-->
