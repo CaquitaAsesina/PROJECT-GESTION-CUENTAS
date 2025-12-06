@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -83,6 +84,25 @@ public class AccountController {
     }
 
     // PATCH
+    @PatchMapping("/modif/id/{id}/tipo")
+    public AccountDto updateTipo(@PathVariable Long id, @RequestBody AccountDto cuenta) {
+        return account.updateTipo(id, cuenta.getTipo());
+    }
+
+    @PatchMapping("/modif/id/{id}/usuario")
+    public AccountDto updateUsuario(@PathVariable Long id, @RequestBody AccountDto cuenta) {
+        return account.updateUsuario(id, cuenta.getUsuario());
+    }
+
+    @PatchMapping("/modif/id/{id}/contraseña")
+    public AccountDto updateContraseña(@PathVariable Long id, @RequestBody AccountDto cuenta) {
+        return account.updateContraseña(id, cuenta.getContraseña());
+    }
+
+    @PatchMapping("/modif/id/{id}/activo")
+    public AccountDto updateActivo(@PathVariable Long id, @RequestBody AccountDto cuenta) {
+        return account.updateActivo(id, cuenta.getActivo());
+    }
 
     // DELETE
     @DeleteMapping("/delete/id/{id}")

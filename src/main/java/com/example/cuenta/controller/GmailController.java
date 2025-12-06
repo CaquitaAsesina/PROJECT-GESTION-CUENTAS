@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -63,6 +64,20 @@ public class GmailController {
     }
 
     // PATCH
+    @PatchMapping("/modif/id/{id}/correo")
+    public GmailDto updateCorreo(@PathVariable Long id, @RequestBody GmailDto cuenta) {
+        return gmail.updateCorreo(id, cuenta.getCorreo());
+    }
+
+    @PatchMapping("/modif/id/{id}/contraseña")
+    public GmailDto updateContraseña(@PathVariable Long id, @RequestBody GmailDto cuenta) {
+        return gmail.updateContraseña(id, cuenta.getContraseña());
+    }
+
+    @PatchMapping("/modif/id/{id}/estado")
+    public GmailDto updateEstado(@PathVariable Long id, @RequestBody GmailDto cuenta) {
+        return gmail.updateEstado(id, cuenta.getEstado());
+    }
 
     // DELETE
     @DeleteMapping("/delete/id/{id}")

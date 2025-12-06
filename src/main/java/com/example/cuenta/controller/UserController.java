@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -35,6 +36,11 @@ public class UserController {
         return user.getUserById(id);
     }
 
+    @GetMapping("/search/administrador/{administrador}")
+    public UserDto getUserByAdministrador(@PathVariable String administrador) {
+        return user.getUserByAdministrador(administrador);
+    }
+
     // POST
     @PostMapping("/save")
     public UserDto createUser(@RequestBody UserDto usuario) {
@@ -46,7 +52,17 @@ public class UserController {
     public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto usuario) {
         return user.updateUser(id, usuario);
     }
+
     // PATCH
+    @PatchMapping("/modif/id/{id}/administrador")
+    public UserDto updateAdministrador(@PathVariable Long id, @RequestBody UserDto usuario) {
+        return user.updateAdministrador(id, usuario.getAdministrador());
+    }
+
+    @PatchMapping("/modif/id/{id}/cuentas")
+    public UserDto updateCuentas(@PathVariable Long id, @RequestBody UserDto usuario) {
+        return user.updateCuentas(id, usuario.getCuentas());
+    }
 
     // DELETE
     @DeleteMapping("/delete/id/{id}")

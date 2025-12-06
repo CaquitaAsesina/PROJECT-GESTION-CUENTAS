@@ -53,6 +53,7 @@ public class GmailService {
 
         Gmail gmail = new Gmail();
         gmail.setUser(user);
+        user.setCuentas(user.getCuentas() + 1);
         gmail.setCorreo(cuenta.getCorreo());
         gmail.setContraseña(cuenta.getContraseña());
         if (cuenta.getEstado() == null) {
@@ -61,6 +62,7 @@ public class GmailService {
             gmail.setEstado(cuenta.getEstado());
         }
         Gmail gmailSave = gmailRepository.save(gmail);
+        userRepository.save(user);
         return convertToDTO(gmailSave);
     }
 
@@ -75,6 +77,39 @@ public class GmailService {
     }
 
     // PATCH
+    public GmailDto updateCorreo(Long id, String correo) {
+        Gmail gmail = gmailRepository.findById(id).orElseThrow();
+        if (!gmail.getCorreo().equalsIgnoreCase(correo)) {
+            if (gmailRepository.existsByCorreo(correo)) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+        gmail.setCorreo(correo);
+        Gmail updateGmail = gmailRepository.save(gmail);
+        return convertToDTO(updateGmail);
+    }
+
+    public GmailDto updateContraseña(Long id, String contraseña) {
+        Gmail gmail = gmailRepository.findById(id).orElseThrow();
+        if (gmail.getContraseña().equalsIgnoreCase(contraseña)) {
+            return null;
+        }
+        gmail.setContraseña(contraseña);
+        Gmail updateContraseña = gmailRepository.save(gmail);
+        return convertToDTO(updateContraseña);
+    }
+
+    public GmailDto updateEstado(Long id, String estado) {
+        Gmail gmail = gmailRepository.findById(id).orElseThrow();
+        if (gmail.getEstado().equalsIgnoreCase(estado)) {
+            return null;
+        }
+        gmail.setEstado(estado);
+        Gmail updateEstado = gmailRepository.save(gmail);
+        return convertToDTO(updateEstado);
+    }
 
     // DELETE
     @Transactional
@@ -82,7 +117,6 @@ public class GmailService {
         Gmail gmail = gmailRepository.findById(id).orElseThrow();
         gmailRepository.delete(gmail);
         return convertToDTO(gmail);
-
     }
 
     private GmailDto convertToDTO(Gmail cuenta) {

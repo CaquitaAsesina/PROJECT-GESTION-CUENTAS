@@ -76,6 +76,7 @@ public class AccountService {
             return null;
         }
         Account account = new Account();
+        user.setCuentas(user.getCuentas() + 1);
         account.setUser(user);
         account.setGmail(gmail);
         account.setTipo(cuenta.getTipo());
@@ -86,6 +87,7 @@ public class AccountService {
         } else {
             account.setActivo(cuenta.getActivo());
         }
+        userRepository.save(user);
         Account accountSave = accountRepository.save(account);
         return convertToDTO(accountSave);
     }
@@ -105,6 +107,45 @@ public class AccountService {
     }
 
     // PATCH
+    public AccountDto updateTipo(Long id, String tipo) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        if (account.getTipo().equalsIgnoreCase(tipo)) {
+            return null;
+        }
+        account.setTipo(tipo);
+        Account updateTipo = accountRepository.save(account);
+        return convertToDTO(updateTipo);
+    }
+
+    public AccountDto updateUsuario(Long id, String usuario) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        if (account.getUsuario().equalsIgnoreCase(usuario)) {
+            return null;
+        }
+        account.setUsuario(usuario);
+        Account updateUsuario = accountRepository.save(account);
+        return convertToDTO(updateUsuario);
+    }
+
+    public AccountDto updateContraseña(Long id, String contraseña) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        if (account.getContraseña().equalsIgnoreCase(contraseña)) {
+            return null;
+        }
+        account.setContraseña(contraseña);
+        Account updateContraseña = accountRepository.save(account);
+        return convertToDTO(updateContraseña);
+    }
+
+    public AccountDto updateActivo(Long id, Boolean activo) {
+        Account account = accountRepository.findById(id).orElseThrow();
+        if (account.getActivo() == activo) {
+            return null;
+        }
+        account.setActivo(activo);
+        Account updateActivo = accountRepository.save(account);
+        return convertToDTO(updateActivo);
+    }
 
     // DELETE
     @Transactional

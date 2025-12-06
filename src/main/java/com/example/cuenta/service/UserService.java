@@ -62,7 +62,31 @@ public class UserService {
         User upadeUser = userRepository.save(user);
         return convertToDTO(upadeUser);
     }
+
     // PATCH
+    public UserDto updateAdministrador(Long id, String administrador) {
+        User user = userRepository.findById(id).orElseThrow();
+        if (!user.getAdministrador().equalsIgnoreCase(administrador)) {
+            if (userRepository.existsByAdministrador(administrador)) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+        user.setAdministrador(administrador);
+        User updateAdministrador = userRepository.save(user);
+        return convertToDTO(updateAdministrador);
+    }
+
+    public UserDto updateCuentas(Long id, Integer cuentas) {
+        User user = userRepository.findById(id).orElseThrow();
+        if (user.getCuentas() == cuentas) {
+            return null;
+        }
+        user.setCuentas(cuentas);
+        User updateCuentas = userRepository.save(user);
+        return convertToDTO(updateCuentas);
+    }
 
     // DELETE
     @Transactional
