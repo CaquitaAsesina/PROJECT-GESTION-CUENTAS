@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título dinámico con tipo y usuario -->
+    <title th:text="|${account.tipo} - ${account.usuario}|">Detalles Cuenta</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-11">
+
+                <!-- BREADCRUMB -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/accounts}">
+                                <i class="fas fa-id-card"></i> Cuentas
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <span th:text="${account.tipo}">Servicio</span>
+                        </li>
+                    </ol>
+                </nav>
+
+                <!-- CARD PRINCIPAL -->
+                <div class="card shadow-lg">
+                    <!-- HEADER CON COLOR DINÁMICO SEGÚN TIPO -->
+                    <div class="card-header text-white" th:classappend="${account.tipo == 'Netflix' ? 'bg-danger' : 
+                                         (account.tipo == 'Spotify' ? 'bg-success' : 
+                                         (account.tipo == 'Amazon' ? 'bg-warning text-dark' : 
+                                         (account.tipo == 'Disney+' ? 'bg-primary' : 'bg-dark')))}">
+                        <!-- Header con color según el servicio -->
+                        <!-- Netflix → rojo, Spotify → verde, Amazon → amarillo, Disney+ → azul -->
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <!-- Ícono dinámico según tipo -->
+                                <span th:switch="${account.tipo}">
+                                    <i th:case="'Netflix'" class="fas fa-film"></i>
+                                    <i th:case="'Spotify'" class="fas fa-music"></i>
+                                    <i th:case="'Amazon'" class="fas fa-shopping-cart"></i>
+                                    <i th:case="'Disney+'" class="fas fa-star"></i>
+                                    <i th:case="'HBO Max'" class="fas fa-tv"></i>
+                                    <i th:case="'YouTube Premium'" class="fas fa-play-circle"></i>
+                                    <i th:case="*" class="fas fa-globe"></i>
+                                </span>
+
+                                Cuenta de <span th:text="${account.tipo}">Servicio</span>
+                            </h4>
+
+                            <!-- Badges del header -->
+                            <div>
+                                <!-- Badge de estado activo/inactivo -->
+                                <span class="badge me-2"
+                                    th:classappend="${account.activo ? 'bg-light text-success' : 'bg-light text-secondary'}">
+                                    <i th:class="${account.activo ? 'fas fa-check-circle' : 'fas fa-times-circle'}"></i>
+                                    <span th:text="${account.activo ? 'ACTIVA' : 'INACTIVA'}">Estado</span>
+                                </span>
+
+                                <!-- Badge con ID -->
+                                <span class="badge bg-light text-dark">
+                                    ID: <span th:text="${account.id}">1</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- ALERTA DE ESTADO -->
+                        <!-- Muestra alerta si la cuenta está inactiva -->
+                        <div th:if="${!account.activo}" class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Atención:</strong> Esta cuenta se encuentra <strong>INACTIVA</strong>.
+                            <a th:href="@{/accounts/toggle/{id}(id=${account.id})}" class="alert-link">
+                                Haz clic aquí para activarla
+                            </a>
+                        </div>
+
+                        <!-- SECCIÓN: CREDENCIALES DE ACCESO -->
+                        <h5 class="mb-3">
+                            <i class="fas fa-key text-warning"></i> Credenciales de Acceso
+                        </h5>
+
+                        <div class="row mb-4">
+                            <!-- USUARIO DE LA CUENTA -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-user-circle text-primary"></i> Usuario / Email
+                                        </h6>
+                                        <p class="fs-5 mb-0">
+                                            <code style="font-size: 1.1rem;" th:text="${account.usuario}">
+                                                usuario@ejemplo.com
+                                            </code>
+                                        </p>
+                                        <!-- Botón copiar -->
+                                        <button class="btn btn-sm btn-outline-primary mt-2"
+                                            onclick="copyToClipboard(this, 'Usuario')"
+                                            th:attr="data-text=${account.usuario}">
+                                            <i class="fas fa-copy"></i> Copiar Usuario
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CONTRASEÑA -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-key text-danger"></i> Contraseña
+                                        </h6>
+                                        <p class="fs-5 mb-0">
+                                            <code id="passwordField" style="font-size: 1.1rem;">
+                                                ••••••••••••
+                                            </code>
+                                        </p>
+                                        <!-- Botones para contraseña -->
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="togglePassword()"
+                                                th:attr="data-password=${account.contraseña}">
+                                                <i class="fas fa-eye" id="toggleIcon"></i>
+                                                <span id="toggleText">Mostrar</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="copyPassword()"
+                                                th:attr="data-password=${account.contraseña}">
+                                                <i class="fas fa-copy"></i> Copiar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- SECCIÓN: INFORMACIÓN DEL PROPIETARIO Y CORREO -->
+                        <h5 class="mb-3">
+                            <i class="fas fa-info-circle text-info"></i> Información de Vinculación
+                        </h5>
+
+                        <div class="row mb-4">
+                            <!-- USUARIO PROPIETARIO -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <i class="fas fa-user"></i> Usuario Propietario
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-2">
+                                            <strong>Nombre:</strong>
+                                            <span class="text-primary" th:text="${user.administrador}">admin1</span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>ID Usuario:</strong>
+                                            <span class="badge bg-info" th:text="${user.id}">1</span>
+                                        </p>
+                                        <p class="mb-3">
+                                            <strong>Total de Cuentas:</strong>
+                                            <span class="badge bg-secondary" th:text="${user.cuentas}">0</span>
+                                        </p>
+
+                                        <!-- Enlaces rápidos -->
+                                        <a th:href="@{/users/{id}(id=${user.id})}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-user-circle"></i> Ver Usuario
+                                        </a>
+                                        <a th:href="@{/accounts/user/{id}(id=${user.id})}"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-list"></i> Sus Cuentas
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CORREO GMAIL ASOCIADO -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fas fa-envelope"></i> Correo Gmail Asociado
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-2">
+                                            <strong>Correo:</strong>
+                                            <span class="text-success" th:text="${gmail.correo}">
+                                                correo@gmail.com
+                                            </span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>ID Gmail:</strong>
+                                            <span class="badge bg-success" th:text="${gmail.id}">1</span>
+                                        </p>
+                                        <p class="mb-3">
+                                            <strong>Estado:</strong>
+                                            <span class="badge"
+                                                th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 'bg-warning'}"
+                                                th:text="${gmail.estado}">
+                                                ACTIVO
+                                            </span>
+                                        </p>
+
+                                        <!-- Enlaces rápidos -->
+                                        <a th:href="@{/gmails/{id}(id=${gmail.id})}"
+                                            class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-envelope-open"></i> Ver Gmail
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="copyToClipboard(this, 'Correo')"
+                                            th:attr="data-text=${gmail.correo}">
+                                            <i class="fas fa-copy"></i> Copiar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- SECCIÓN: FECHAS -->
+                        <h5 class="mb-3">
+                            <i class="fas fa-calendar-alt text-secondary"></i> Historial de Fechas
+                        </h5>
+
+                        <div class="row mb-4">
+                            <!-- FECHA DE REGISTRO -->
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-success">
+                                            <i class="fas fa-calendar-plus"></i> Fecha de Registro
+                                        </h6>
+                                        <p class="card-text fs-5">
+                                            <span th:text="${#temporals.format(account.fechaRegistro, 'dd/MM/yyyy')}">
+                                                01/01/2025
+                                            </span>
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i>
+                                            <span th:text="${#temporals.format(account.fechaRegistro, 'hh:mm:ss a')}">
+                                                10:30:45 AM
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ÚLTIMA ACTUALIZACIÓN -->
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-primary">
+                                            <i class="fas fa-calendar-check"></i> Última Actualización
+                                        </h6>
+                                        <p class="card-text fs-5">
+                                            <span
+                                                th:text="${#temporals.format(account.fechaActualizacion, 'dd/MM/yyyy')}">
+                                                01/01/2025
+                                            </span>
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i>
+                                            <span
+                                                th:text="${#temporals.format(account.fechaActualizacion, 'hh:mm:ss a')}">
+                                                03:45:30 PM
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DÍAS DESDE CREACIÓN -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Cuenta creada hace: </strong>
+                            <span
+                                th:with="dias=${#temporals.daysBetween(account.fechaRegistro, #temporals.createNow())}">
+                                <span th:text="|${dias} día(s)|">X días</span>
+                            </span>
+                        </div>
+
+                        <hr>
+
+                        <!-- TABLA RESUMEN COMPLETO -->
+                        <h5 class="mb-3">
+                            <i class="fas fa-table text-dark"></i> Resumen Completo
+                        </h5>
+
+                        <table class="table table-bordered table-hover">
+                            <tbody>
+                                <tr>
+                                    <th class="w-25 bg-light">
+                                        <i class="fas fa-hashtag text-primary"></i> ID Cuenta
+                                    </th>
+                                    <td th:text="${account.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-tag text-primary"></i> Tipo de Servicio
+                                    </th>
+                                    <td>
+                                        <span th:switch="${account.tipo}">
+                                            <span th:case="'Netflix'">
+                                                <i class="fas fa-film text-danger"></i>
+                                            </span>
+                                            <span th:case="'Spotify'">
+                                                <i class="fas fa-music text-success"></i>
+                                            </span>
+                                            <span th:case="'Amazon'">
+                                                <i class="fas fa-shopping-cart text-warning"></i>
+                                            </span>
+                                            <span th:case="*">
+                                                <i class="fas fa-globe text-secondary"></i>
+                                            </span>
+                                        </span>
+                                        <strong th:text="${account.tipo}">Netflix</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-user-circle text-primary"></i> Usuario
+                                    </th>
+                                    <td>
+                                        <code th:text="${account.usuario}">usuario@ejemplo.com</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-key text-primary"></i> Contraseña
+                                    </th>
+                                    <td>
+                                        <code>••••••••••</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-2"
+                                            onclick="alert(this.getAttribute('data-password'))"
+                                            th:attr="data-password=${account.contraseña}">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-toggle-on text-primary"></i> Estado
+                                    </th>
+                                    <td>
+                                        <span class="badge"
+                                            th:classappend="${account.activo ? 'bg-success' : 'bg-secondary'}">
+                                            <i
+                                                th:class="${account.activo ? 'fas fa-check-circle' : 'fas fa-times-circle'}"></i>
+                                            <span th:text="${account.activo ? 'ACTIVA' : 'INACTIVA'}">Estado</span>
+                                        </span>
+
+                                        <!-- Botón toggle -->
+                                        <a th:href="@{/accounts/toggle/{id}(id=${account.id})}"
+                                            class="btn btn-sm btn-outline-primary ms-2">
+                                            <i
+                                                th:class="${account.activo ? 'fas fa-toggle-off' : 'fas fa-toggle-on'}"></i>
+                                            <span th:text="${account.activo ? 'Desactivar' : 'Activar'}">Toggle</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-user text-primary"></i> Propietario
+                                    </th>
+                                    <td>
+                                        <span th:text="${user.administrador}">admin1</span>
+                                        <span class="badge bg-info ms-2" th:text="|ID: ${user.id}|">ID: 1</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-envelope text-primary"></i> Correo Gmail
+                                    </th>
+                                    <td>
+                                        <span th:text="${gmail.correo}">correo@gmail.com</span>
+                                        <span class="badge bg-success ms-2" th:text="|ID: ${gmail.id}|">ID: 1</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-calendar-plus text-primary"></i> Creación
+                                    </th>
+                                    <td>
+                                        <span
+                                            th:text="${#temporals.format(account.fechaRegistro, 'EEEE, dd \'de\' MMMM \'de\' yyyy, hh:mm:ss a')}">
+                                            Fecha completa
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">
+                                        <i class="fas fa-calendar-check text-primary"></i> Actualización
+                                    </th>
+                                    <td>
+                                        <span
+                                            th:text="${#temporals.format(account.fechaActualizacion, 'EEEE, dd \'de\' MMMM \'de\' yyyy, hh:mm:ss a')}">
+                                            Fecha completa
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PIE DE TARJETA -->
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a th:href="@{/accounts}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver a la Lista
+                                </a>
+                            </div>
+
+                            <div>
+                                <!-- Botón toggle estado -->
+                                <a th:href="@{/accounts/toggle/{id}(id=${account.id})}" class="btn"
+                                    th:classappend="${account.activo ? 'btn-warning' : 'btn-success'}">
+                                    <i th:class="${account.activo ? 'fas fa-toggle-off' : 'fas fa-toggle-on'}"></i>
+                                    <span th:text="${account.activo ? 'Desactivar' : 'Activar'}">Toggle</span>
+                                </a>
+
+                                <!-- Botón editar -->
+                                <a th:href="@{/accounts/edit/{id}(id=${account.id})}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+
+                                <!-- Botón eliminar -->
+                                <a th:href="@{/accounts/delete/{id}(id=${account.id})}" class="btn btn-danger"
+                                    onclick="return confirm('¿Eliminar esta cuenta?');">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        // Alternar visibilidad de contraseña
+        function togglePassword() {
+            const passwordField = document.getElementById('passwordField');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            const password = document.querySelector('button[onclick="togglePassword()"]')
+                .getAttribute('data-password');
+
+            if (passwordField.textContent.includes('••')) {
+                passwordField.textContent = password;
+                toggleIcon.className = 'fas fa-eye-slash';
+                toggleText.textContent = 'Ocultar';
+            } else {
+                passwordField.textContent = '••••••••••••';
+                toggleIcon.className = 'fas fa-eye';
+                toggleText.textContent = 'Mostrar';
+            }
+        }
+
+        // Copiar contraseña
+        function copyPassword() {
+            const password = document.querySelector('button[onclick="copyPassword()"]')
+                .getAttribute('data-password');
+
+            navigator.clipboard.writeText(password).then(function () {
+                alert('Contraseña copiada al portapapeles');
+            }).catch(function (err) {
+                console.error('Error: ', err);
+            });
+        }
+
+        // Copiar texto genérico con feedback
+        function copyToClipboard(button, label) {
+            const text = button.getAttribute('data-text');
+
+            navigator.clipboard.writeText(text).then(function () {
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-outline-primary');
+
+                setTimeout(function () {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-primary');
+                }, 2000);
+            }).catch(function (err) {
+                console.error('Error: ', err);
+                alert('Error al copiar');
+            });
+        }
+    </script>
+</body>
+
+</html>
+
+<!-- 
+===== UBICACIÓN =====
+src/main/resources/templates/accounts/view.html
+
+===== CARACTERÍSTICAS DESTACADAS =====
+
+1. HEADER CON COLOR DINÁMICO:
+   - Netflix → rojo (bg-danger)
+   - Spotify → verde (bg-success)
+   - Amazon → amarillo (bg-warning)
+   - Disney+ → azul (bg-primary)
+   - Otros → negro (bg-dark)
+
+2. ALERTA SI ESTÁ INACTIVA:
+   - Muestra alerta amarilla
+   - Enlace directo para activarla con un clic
+
+3. CREDENCIALES DESTACADAS:
+   - Cards grandes para usuario y contraseña
+   - Botones para copiar ambos
+   - Contraseña con mostrar/ocultar
+
+4. INFO PROPIETARIO Y GMAIL:
+   - Cards con bordes de colores
+   - Enlaces rápidos a detalles
+   - Estado del correo Gmail
+
+5. BOTÓN TOGGLE EN MÚLTIPLES LUGARES:
+   - En la tabla resumen
+   - En el footer
+   - Color dinámico según estado actual
+
+6. TABLA RESUMEN COMPLETA:
+   - Todos los datos organizados
+   - Íconos para cada campo
+   - Fechas en formato largo
+
+===== LÓGICA DEL COLOR DEL HEADER =====
+
+th:classappend="${account.tipo == 'Netflix' ? 'bg-danger' : 
+                (account.tipo == 'Spotify' ? 'bg-success' : 
+                (account.tipo == 'Amazon' ? 'bg-warning text-dark' : 
+                (account.tipo == 'Disney+' ? 'bg-primary' : 'bg-dark')))}"
+
+Resultado visual:
+- Netflix → Fondo rojo
+- Spotify → Fondo verde
+- Amazon → Fondo amarillo (texto negro)
+- Disney+ → Fondo azul
+- Otros → Fondo negro
+
+===== FEEDBACK VISUAL AL COPIAR =====
+
+Antes: [Copiar Usuario]
+Durante: [✓ Copiado] (verde)
+Después (2s): [Copiar Usuario]
+
+Mejora la UX indicando claramente que se copió.
+-->

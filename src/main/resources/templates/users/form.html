@@ -1,49 +1,116 @@
 <!DOCTYPE html>
-<!-- Declaración HTML5 -->
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- Namespace de Thymeleaf -->
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Título dinámico: cambia según si es crear o editar -->
-    <!-- th:text="${user.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}": -->
-    <!-- Operador ternario en Thymeleaf (como en Java: condición ? verdadero : falso) -->
-    <!-- Si user.id es null = Crear, si tiene ID = Editar -->
     <title th:text="${user.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}">Formulario Usuario</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Navbar personalizado */
+        .custom-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animación del formulario */
+        .form-container {
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Efecto en inputs al enfocar */
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <!-- row justify-content-center: centra la columna horizontalmente -->
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-layer-group"></i>
+                <strong>Sistema de Cuentas</strong>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/users}">
+                            <i class="fas fa-users"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/gmails}">
+                            <i class="fas fa-envelope"></i> Correos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/accounts}">
+                            <i class="fas fa-id-card"></i> Cuentas
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/users}"><i class="fas fa-users"></i> Usuarios</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span th:text="${user.id == null ? 'Nuevo' : 'Editar'}">Formulario</span>
+                </li>
+            </ol>
+        </nav>
+
         <div class="row justify-content-center">
-            <!-- col-md-8: columna de 8/12 del ancho en pantallas medianas -->
             <div class="col-md-8">
 
                 <!-- CARD DEL FORMULARIO -->
-                <div class="card shadow">
-                    <!-- shadow: sombra sutil en Bootstrap -->
-
+                <div class="card shadow-lg form-container">
                     <div class="card-header bg-primary text-white">
-                        <!-- bg-primary: fondo azul -->
-                        <!-- text-white: texto blanco -->
-
                         <h4 class="mb-0">
-                            <!-- mb-0: margin-bottom 0 (sin espaciado inferior) -->
-
-                            <!-- Ícono dinámico según acción -->
                             <i th:class="${user.id == null ? 'fas fa-user-plus' : 'fas fa-user-edit'}"></i>
-                            <!-- th:class: establece la clase dinámicamente -->
-                            <!-- Crea: fa-user-plus, Editar: fa-user-edit -->
-
-                            <!-- Título dinámico -->
                             <span th:text="${user.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}">
                                 Formulario
                             </span>
@@ -53,147 +120,161 @@
                     <div class="card-body">
 
                         <!-- MENSAJES DE ERROR -->
-                        <!-- th:if="${error}": solo muestra si hay error -->
                         <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <span th:text="${error}">Error</span>
+                            <strong>Error:</strong> <span th:text="${error}">Error</span>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
 
                         <!-- FORMULARIO -->
-                        <!-- th:action="@{...}": URL de destino del formulario -->
-                        <!-- Si user.id existe (editar): POST /users/update/5 -->
-                        <!-- Si user.id es null (crear): POST /users -->
                         <form th:action="${user.id != null ? '/users/update/' + user.id : '/users'}" th:object="${user}"
                             method="post">
-                            <!-- th:object="${user}": -->
-                            <!-- Vincula el formulario completo con el objeto "user" del Model -->
-                            <!-- Ahora podemos usar *{campo} en lugar de ${user.campo} -->
-
-                            <!-- method="post": envía datos con POST (no GET) -->
-                            <!-- POST es más seguro y permite enviar más datos -->
 
                             <!-- CAMPO: ADMINISTRADOR -->
-                            <div class="mb-3">
-                                <!-- mb-3: margin-bottom (espaciado entre campos) -->
-
+                            <div class="mb-4">
                                 <label for="administrador" class="form-label">
-                                    <!-- form-label: estilo de Bootstrap para etiquetas -->
-                                    <i class="fas fa-user"></i> Nombre de Administrador
+                                    <i class="fas fa-user text-primary"></i>
+                                    <strong>Nombre de Administrador</strong>
                                     <span class="text-danger">*</span>
-                                    <!-- text-danger: color rojo para indicar campo obligatorio -->
                                 </label>
 
-                                <!-- th:field="*{administrador}": -->
-                                <!-- IMPORTANTE: esto hace 3 cosas automáticamente: -->
-                                <!-- 1. id="administrador" (para el atributo for del label) -->
-                                <!-- 2. name="administrador" (nombre del parámetro enviado) -->
-                                <!-- 3. value="${user.administrador}" (valor actual si existe) -->
-                                <!-- El * en lugar de $ indica que usa el th:object del form -->
-                                <input type="text" class="form-control" th:field="*{administrador}"
-                                    placeholder="Ingrese nombre de administrador" required>
-                                <!-- required: validación HTML5 (campo obligatorio) -->
-                                <!-- form-control: estilo de Bootstrap para inputs -->
+                                <input type="text" class="form-control form-control-lg" th:field="*{administrador}"
+                                    placeholder="Ej: admin1, usuario123" required minlength="3" maxlength="20">
 
-                                <!-- Texto de ayuda -->
                                 <div class="form-text">
-                                    <!-- form-text: texto pequeño de ayuda en Bootstrap -->
                                     <i class="fas fa-info-circle"></i>
-                                    Debe ser único en el sistema
+                                    Entre 3 y 20 caracteres. Debe ser único en el sistema.
                                 </div>
                             </div>
 
                             <!-- CAMPO: CUENTAS -->
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label for="cuentas" class="form-label">
-                                    <i class="fas fa-hashtag"></i> Número de Cuentas
+                                    <i class="fas fa-hashtag text-success"></i>
+                                    <strong>Número de Cuentas</strong>
                                 </label>
 
-                                <!-- type="number": input HTML5 para números -->
-                                <!-- min="0": no permite números negativos -->
-                                <!-- th:field="*{cuentas}": vinculación bidireccional -->
-                                <!-- Si user.cuentas = 5, el input mostrará 5 -->
-                                <!-- Si el usuario escribe 10, se enviará cuentas=10 -->
-                                <input type="number" class="form-control" th:field="*{cuentas}" min="0" placeholder="0">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calculator"></i>
+                                    </span>
+                                    <input type="number" class="form-control" th:field="*{cuentas}" min="0"
+                                        placeholder="0">
+                                </div>
 
                                 <div class="form-text">
                                     <i class="fas fa-info-circle"></i>
-                                    Número de cuentas asociadas al usuario
+                                    Este campo se actualiza automáticamente al crear cuentas.
                                 </div>
                             </div>
 
-                            <!-- CAMPO OCULTO: ID (solo para edición) -->
-                            <!-- th:if="${user.id != null}": -->
-                            <!-- Solo incluye este campo si estamos editando -->
-                            <!-- En creación (id=null), este campo no existe -->
+                            <!-- CAMPO OCULTO: ID -->
                             <input type="hidden" th:if="${user.id != null}" th:field="*{id}">
-                            <!-- type="hidden": campo invisible, no se muestra en pantalla -->
-                            <!-- Se usa para enviar el ID al actualizar -->
+
+                            <!-- SEPARADOR -->
+                            <hr class="my-4">
 
                             <!-- BOTONES DE ACCIÓN -->
-                            <div class="d-flex justify-content-between mt-4">
-                                <!-- d-flex: display flex de Bootstrap -->
-                                <!-- justify-content-between: espacia los elementos en los extremos -->
-                                <!-- mt-4: margin-top -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a th:href="@{/users}" class="btn btn-secondary btn-lg">
+                                        <i class="fas fa-arrow-left"></i> Cancelar
+                                    </a>
+                                </div>
 
-                                <!-- BOTÓN VOLVER -->
-                                <a th:href="@{/users}" class="btn btn-secondary">
-                                    <!-- btn-secondary: botón gris -->
-                                    <i class="fas fa-arrow-left"></i> Volver
-                                </a>
-
-                                <!-- BOTÓN GUARDAR -->
-                                <button type="submit" class="btn btn-success">
-                                    <!-- type="submit": envía el formulario al hacer clic -->
-                                    <!-- btn-success: botón verde -->
-
-                                    <!-- Ícono y texto dinámicos según acción -->
-                                    <i th:class="${user.id == null ? 'fas fa-save' : 'fas fa-check'}"></i>
-                                    <span th:text="${user.id == null ? 'Guardar' : 'Actualizar'}">
-                                        Guardar
-                                    </span>
-                                </button>
+                                <div>
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i th:class="${user.id == null ? 'fas fa-save' : 'fas fa-check'}"></i>
+                                        <span th:text="${user.id == null ? 'Crear Usuario' : 'Guardar Cambios'}">
+                                            Guardar
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                         </form>
 
                         <!-- INFORMACIÓN ADICIONAL (solo en edición) -->
-                        <!-- th:if="${user.id != null}": solo si estamos editando -->
-                        <div th:if="${user.id != null}" class="mt-4">
+                        <div th:if="${user.id != null}" class="mt-5">
                             <hr>
-                            <!-- hr: línea horizontal separadora -->
 
-                            <h6 class="text-muted">
-                                <!-- text-muted: color gris para texto secundario -->
+                            <h6 class="text-muted mb-3">
                                 <i class="fas fa-info-circle"></i> Información del Registro
                             </h6>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong>ID:</strong>
-                                        <span th:text="${user.id}">1</span>
-                                    </p>
-                                    <p class="mb-1">
-                                        <strong>Creado:</strong>
-                                        <!-- th:text="${#temporals.format(...)}" -->
-                                        <!-- Formatea la fecha: 15/01/2025 10:30 -->
-                                        <span th:text="${#temporals.format(user.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
-                                            01/01/2025
-                                        </span>
-                                    </p>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <small class="text-muted d-block">ID</small>
+                                            <strong class="fs-4" th:text="${user.id}">1</strong>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <p class="mb-1">
-                                        <strong>Última Actualización:</strong>
-                                        <span
-                                            th:text="${#temporals.format(user.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
-                                            01/01/2025
-                                        </span>
-                                    </p>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <small class="text-muted d-block">Creado</small>
+                                            <strong th:text="${#temporals.format(user.fechaRegistro, 'dd/MM/yyyy')}">
+                                                01/01/2025
+                                            </strong>
+                                            <br>
+                                            <small th:text="${#temporals.format(user.fechaRegistro, 'HH:mm')}">
+                                                10:30
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <small class="text-muted d-block">Actualizado</small>
+                                            <strong
+                                                th:text="${#temporals.format(user.fechaActualizacion, 'dd/MM/yyyy')}">
+                                                01/01/2025
+                                            </strong>
+                                            <br>
+                                            <small th:text="${#temporals.format(user.fechaActualizacion, 'HH:mm')}">
+                                                15:45
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enlaces a sus cuentas y correos -->
+                            <div class="mt-4">
+                                <div class="alert alert-info">
+                                    <strong><i class="fas fa-link"></i> Accesos Rápidos:</strong>
+                                    <div class="mt-2">
+                                        <a th:href="@{/gmails/user/{id}(id=${user.id})}"
+                                            class="btn btn-sm btn-success me-2">
+                                            <i class="fas fa-envelope"></i> Ver sus Correos Gmail
+                                        </a>
+                                        <a th:href="@{/accounts/user/{id}(id=${user.id})}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-id-card"></i> Ver sus Cuentas
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- AYUDA -->
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body bg-light">
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-question-circle"></i> Ayuda
+                        </h6>
+                        <ul class="mb-0">
+                            <li><strong>Nombre de Administrador:</strong> Debe ser único. Se usa para identificar al
+                                usuario.</li>
+                            <li><strong>Número de Cuentas:</strong> Se actualiza automáticamente cuando creas cuentas
+                                asociadas.</li>
+                            <li>Los campos marcados con <span class="text-danger">*</span> son obligatorios.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -203,29 +284,36 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script para validación personalizada (opcional) -->
+    <!-- JavaScript de validación -->
     <script>
-        // JavaScript para validación adicional del formulario
-        // Se ejecuta cuando el DOM está completamente cargado
         document.addEventListener('DOMContentLoaded', function () {
-            // Obtiene el formulario
             const form = document.querySelector('form');
 
-            // Agrega evento al enviar el formulario
             form.addEventListener('submit', function (event) {
-                // Obtiene el valor del campo administrador
-                const administrador = document.querySelector('input[name="administrador"]').value;
+                const administrador = document.querySelector('input[name="administrador"]').value.trim();
 
-                // Validación: verifica que tenga al menos 3 caracteres
-                if (administrador.trim().length < 3) {
-                    // Previene el envío del formulario
+                // Validación de longitud
+                if (administrador.length < 3) {
                     event.preventDefault();
-                    // Muestra alerta
                     alert('El nombre de administrador debe tener al menos 3 caracteres');
                     return false;
                 }
 
-                // Si pasa todas las validaciones, el formulario se envía
+                if (administrador.length > 20) {
+                    event.preventDefault();
+                    alert('El nombre de administrador no puede exceder 20 caracteres');
+                    return false;
+                }
+
+                // Validación de caracteres especiales (opcional)
+                const regex = /^[a-zA-Z0-9_-]+$/;
+                if (!regex.test(administrador)) {
+                    if (!confirm('El nombre contiene caracteres especiales. ¿Desea continuar?')) {
+                        event.preventDefault();
+                        return false;
+                    }
+                }
+
                 return true;
             });
         });

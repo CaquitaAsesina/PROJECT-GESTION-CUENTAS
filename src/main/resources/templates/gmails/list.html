@@ -10,74 +10,198 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .custom-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container mt-5">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-layer-group"></i>
+                <strong>Sistema de Cuentas</strong>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/users}">
+                            <i class="fas fa-users"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/gmails}">
+                            <i class="fas fa-envelope"></i> Correos Gmail
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/accounts}">
+                            <i class="fas fa-id-card"></i> Cuentas
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a th:href="@{/}"><i class="fas fa-home"></i> Inicio</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Correos Gmail
+                </li>
+            </ol>
+        </nav>
 
         <!-- ENCABEZADO -->
         <div class="row mb-4">
             <div class="col-md-8">
-                <h2>
-                    <i class="fas fa-envelope"></i>
-                    <!-- Título dinámico según si hay filtro -->
-                    <!-- th:if: solo muestra si la condición es verdadera -->
-                    <span th:if="${user != null}">
-                        <!-- Si viene de /gmails/user/5, muestra nombre del usuario -->
-                        Correos de <span th:text="${user.administrador}">Usuario</span>
-                    </span>
-                    <span th:if="${filtroEstado != null}">
-                        <!-- Si viene de /gmails/estado/ACTIVO, muestra el estado -->
-                        Correos - Estado: <span th:text="${filtroEstado}">Estado</span>
-                    </span>
-                    <span th:if="${user == null and filtroEstado == null}">
-                        <!-- Si no hay filtros, título normal -->
-                        Gestión de Correos Gmail
-                    </span>
+                <h2 class="mb-0">
+                    <i class="fas fa-envelope text-success"></i>
+                    <!-- Título dinámico según filtros -->
+                    <span>Gestión de Correos</span>
                 </h2>
+                <p class="text-muted">
+                    <small>Administra los correos Gmail del sistema</small>
+                </p>
             </div>
 
             <div class="col-md-4 text-end">
-                <!-- Botón para crear nuevo correo -->
-                <a th:href="@{/gmails/new}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nuevo Correo
+                <a th:href="@{/gmails/new}" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus-circle"></i> Nuevo Correo
                 </a>
             </div>
         </div>
 
-        <!-- MENSAJES DE ÉXITO O ERROR -->
-        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <!-- MENSAJES -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
             <i class="fas fa-check-circle"></i>
-            <span th:text="${success}">Mensaje de éxito</span>
+            <strong>¡Éxito!</strong> <span th:text="${success}">Mensaje</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
             <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${error}">Mensaje de error</span>
+            <strong>Error:</strong> <span th:text="${error}">Error</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- ESTADÍSTICAS RÁPIDAS -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <!-- Total -->
+                            <div class="col-md-3">
+                                <div class="p-3">
+                                    <i class="fas fa-envelope fa-2x text-success mb-2"></i>
+                                    <h4 class="mb-0" th:text="${gmails != null ? gmails.size() : 0}">0</h4>
+                                    <small class="text-muted">Total Correos</small>
+                                </div>
+                            </div>
+
+                            <!-- Activos -->
+                            <div class="col-md-3">
+                                <div class="p-3 border-start">
+                                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                    <h4 class="mb-0"
+                                        th:text="${gmails != null ? #lists.size(#lists.filter(gmails, g -> g.estado == 'ACTIVO')) : 0}">
+                                        0</h4>
+                                    <small class="text-muted">Activos</small>
+                                </div>
+                            </div>
+
+                            <!-- Descartables -->
+                            <div class="col-md-3">
+                                <div class="p-3 border-start">
+                                    <i class="fas fa-trash-alt fa-2x text-warning mb-2"></i>
+                                    <h4 class="mb-0"
+                                        th:text="${gmails != null ? #lists.size(#lists.filter(gmails, g -> g.estado == 'DESCARTABLE')) : 0}">
+                                        0</h4>
+                                    <small class="text-muted">Descartables</small>
+                                </div>
+                            </div>
+
+                            <!-- Bloqueados -->
+                            <div class="col-md-3">
+                                <div class="p-3 border-start">
+                                    <i class="fas fa-ban fa-2x text-danger mb-2"></i>
+                                    <h4 class="mb-0"
+                                        th:text="${gmails != null ? #lists.size(#lists.filter(gmails, g -> g.estado == 'BLOQUEADO')) : 0}">
+                                        0</h4>
+                                    <small class="text-muted">Bloqueados</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- FILTROS RÁPIDOS -->
-        <div class="card mb-3">
+        <div class="card mb-3 shadow-sm">
             <div class="card-body">
                 <h6 class="card-subtitle mb-3 text-muted">
                     <i class="fas fa-filter"></i> Filtros Rápidos
                 </h6>
                 <div class="btn-group" role="group">
-                    <!-- Botón para ver todos -->
                     <a th:href="@{/gmails}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-list"></i> Todos
                     </a>
-                    <!-- Botón para ver solo activos -->
                     <a th:href="@{/gmails/estado/ACTIVO}" class="btn btn-outline-success btn-sm">
                         <i class="fas fa-check-circle"></i> Activos
                     </a>
-                    <!-- Botón para ver descartables -->
                     <a th:href="@{/gmails/estado/DESCARTABLE}" class="btn btn-outline-warning btn-sm">
                         <i class="fas fa-trash-alt"></i> Descartables
                     </a>
-                    <!-- Botón para ver bloqueados -->
                     <a th:href="@{/gmails/estado/BLOQUEADO}" class="btn btn-outline-danger btn-sm">
                         <i class="fas fa-ban"></i> Bloqueados
                     </a>
@@ -86,171 +210,423 @@
         </div>
 
         <!-- TABLA DE CORREOS -->
-        <div class="card">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> Lista de Correos Gmail
+                </h5>
+            </div>
+
             <div class="card-body">
 
-                <!-- Solo muestra la tabla si hay correos -->
                 <div th:if="${gmails != null and !gmails.isEmpty()}">
 
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Correo</th>
-                                <th>Contraseña</th>
-                                <th>Usuario Propietario</th>
-                                <th>Estado</th>
-                                <th>Fecha Registro</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Correo</th>
+                                    <th>Contraseña</th>
+                                    <th>Usuario Propietario</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            <!-- th:each: bucle for-each -->
-                            <!-- Por cada gmail en la lista gmails, crea una fila -->
-                            <tr th:each="gmail : ${gmails}">
+                            <tbody>
+                                <tr th:each="gmail : ${gmails}">
 
-                                <td th:text="${gmail.id}">1</td>
+                                    <td><strong th:text="${gmail.id}">1</strong></td>
 
-                                <!-- Correo con ícono -->
-                                <td>
-                                    <i class="fas fa-at text-primary"></i>
-                                    <span th:text="${gmail.correo}">correo@gmail.com</span>
-                                </td>
+                                    <td>
+                                        <i class="fas fa-at text-success"></i>
+                                        <span th:text="${gmail.correo}">correo@gmail.com</span>
+                                    </td>
 
-                                <!-- Contraseña con botón para mostrar/ocultar -->
-                                <td>
-                                    <!-- span con tipo password (oculta con ***) -->
-                                    <span class="password-field" style="font-family: monospace;">
-                                        ••••••••
-                                    </span>
-                                    <!-- Botón para mostrar contraseña (usando JavaScript) -->
-                                    <button class="btn btn-sm btn-outline-secondary" type="button"
-                                        onclick="togglePassword(this)" th:attr="data-password=${gmail.contraseña}">
-                                        <!-- th:attr: establece atributos HTML dinámicos -->
-                                        <!-- Guarda la contraseña en un data-attribute -->
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-
-                                <!-- Usuario propietario (necesitamos buscarlo) -->
-                                <td>
-                                    <!-- NOTA: Aquí solo tenemos el userId, no el nombre -->
-                                    <!-- Opción 1: Mostrar solo el ID -->
-                                    <span class="badge bg-info">
-                                        ID: <span th:text="${gmail.user_id}">1</span>
-                                    </span>
-                                    <!-- Opción 2: Enlace para ver correos de ese usuario -->
-                                    <a th:href="@{/gmails/user_id/{user_id}(user_id=${gmail.user_id})}" class="btn btn-sm btn-link">
-                                        Ver correos de este usuario
-                                    </a>
-                                </td>
-
-                                <!-- Estado con badge de color dinámico -->
-                                <td>
-                                    <!-- th:classappend: agrega clases según condición -->
-                                    <!-- Si estado = ACTIVO → bg-success (verde) -->
-                                    <!-- Si estado = DESCARTABLE → bg-warning (amarillo) -->
-                                    <!-- Si estado = BLOQUEADO → bg-danger (rojo) -->
-                                    <span class="badge"
-                                        th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 
-                                                          (gmail.estado == 'DESCARTABLE' ? 'bg-warning' : 'bg-danger')}"
-                                        th:text="${gmail.estado}">
-                                        ACTIVO
-                                    </span>
-                                </td>
-
-                                <!-- Fecha formateada -->
-                                <td>
-                                    <small>
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <span th:text="${#temporals.format(gmail.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
-                                            01/01/2025 10:00
+                                    <td>
+                                        <span class="password-field" style="font-family: monospace;">
+                                            ••••••••
                                         </span>
-                                    </small>
-                                </td>
+                                        <button class="btn btn-sm btn-outline-secondary" type="button"
+                                            onclick="togglePassword(this)" th:attr="data-password=${gmail.contraseña}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
 
-                                <!-- Botones de acciones -->
-                                <td class="text-center">
-                                    <!-- VER -->
-                                    <a th:href="@{/gmails/{id}(id=${gmail.id})}" class="btn btn-sm btn-info"
-                                        title="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            User ID: <span th:text="${gmail.userId}">1</span>
+                                        </span>
+                                        <br>
+                                        <a th:href="@{/gmails/user/{id}(id=${gmail.userId})}"
+                                            class="btn btn-sm btn-link">
+                                            Ver sus correos
+                                        </a>
+                                    </td>
 
-                                    <!-- EDITAR -->
-                                    <a th:href="@{/gmails/edit/{id}(id=${gmail.id})}" class="btn btn-sm btn-warning"
-                                        title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    <td>
+                                        <span class="badge"
+                                            th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 
+                                                              (gmail.estado == 'DESCARTABLE' ? 'bg-warning' : 'bg-danger')}"
+                                            th:text="${gmail.estado}">
+                                            ACTIVO
+                                        </span>
+                                    </td>
 
-                                    <!-- ELIMINAR -->
-                                    <a th:href="@{/gmails/delete/{id}(id=${gmail.id})}" class="btn btn-sm btn-danger"
-                                        title="Eliminar"
-                                        onclick="return confirm('¿Está seguro de eliminar este correo?');">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <td>
+                                        <small>
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span
+                                                th:text="${#temporals.format(gmail.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                                                01/01/2025 10:00
+                                            </span>
+                                        </small>
+                                    </td>
 
-                    <!-- Contador de registros -->
-                    <div class="mt-3">
-                        <small class="text-muted">
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/gmails/{id}(id=${gmail.id})}" class="btn btn-sm btn-info"
+                                                title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+                                            <a th:href="@{/gmails/edit/{id}(id=${gmail.id})}"
+                                                class="btn btn-sm btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+
+                                            <a th:href="@{/gmails/delete/{id}(id=${gmail.id})}"
+                                                class="btn btn-sm btn-danger" title="Eliminar"
+                                                onclick="return confirm('¿Eliminar este correo?');">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 text-muted">
+                        <small>
                             <i class="fas fa-info-circle"></i>
-                            <!-- th:text="|...|": sintaxis de literal string -->
-                            <!-- ${gmails.size()}: llama al método size() de la lista -->
-                            Total de correos: <strong th:text="${gmails.size()}">0</strong>
+                            Mostrando <strong th:text="${gmails.size()}">0</strong> correo(s)
                         </small>
                     </div>
                 </div>
 
                 <!-- MENSAJE SI NO HAY CORREOS -->
                 <div th:if="${gmails == null or gmails.isEmpty()}" class="alert alert-info text-center">
-                    <i class="fas fa-inbox"></i>
-                    No hay correos Gmail registrados.
-                    <a th:href="@{/gmails/new}" class="alert-link">Crear el primero</a>
+                    <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+                    <h5>No hay correos Gmail registrados</h5>
+                    <p class="mb-3">Comienza creando el primer correo</p>
+                    <a th:href="@{/gmails/new}" class="btn btn-success">
+                        <i class="fas fa-plus-circle"></i> Crear Primer Correo
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- ENLACE PARA VOLVER A USUARIOS -->
-        <div class="mt-3">
-            <a th:href="@{/users}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Volver a Usuarios
-            </a>
+        <!-- ACCIONES RÁPIDAS -->
+        <div class="row mt-4 mb-5">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-bolt"></i> Acciones Rápidas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <a th:href="@{/gmails/new}" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-envelope-open"></i> Nuevo Correo
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a th:href="@{/users}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-users"></i> Ver Usuarios
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a th:href="@{/accounts}" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-id-card"></i> Ver Cuentas
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a th:href="@{/}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-home"></i> Inicio
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript para mostrar/ocultar contraseñas -->
+    <!-- JavaScript -->
     <script>
-        // Función para alternar visibilidad de contraseña
         function togglePassword(button) {
-            // Obtiene el span de la contraseña (elemento anterior al botón)
             const passwordSpan = button.previousElementSibling;
-            // Obtiene la contraseña del data-attribute
             const password = button.getAttribute('data-password');
-            // Obtiene el ícono del botón
             const icon = button.querySelector('i');
 
-            // Verifica si actualmente está mostrando la contraseña
             if (passwordSpan.textContent === '••••••••') {
-                // Si está oculta, muestra la contraseña real
                 passwordSpan.textContent = password;
-                // Cambia el ícono a "ojo cerrado"
                 icon.className = 'fas fa-eye-slash';
             } else {
-                // Si está visible, oculta con asteriscos
                 passwordSpan.textContent = '••••••••';
-                // Cambia el ícono a "ojo abierto"
                 icon.className = 'fas fa-eye';
             }
         }
     </script>
+</body>
+
+</html>
+<div class="container mt-5">
+
+    <!-- ENCABEZADO -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>
+                <i class="fas fa-envelope"></i>
+                <!-- Título dinámico según si hay filtro -->
+                <!-- th:if: solo muestra si la condición es verdadera -->
+                <span th:if="${user != null}">
+                    <!-- Si viene de /gmails/user/5, muestra nombre del usuario -->
+                    Correos de <span th:text="${user.administrador}">Usuario</span>
+                </span>
+                <span th:if="${filtroEstado != null}">
+                    <!-- Si viene de /gmails/estado/ACTIVO, muestra el estado -->
+                    Correos - Estado: <span th:text="${filtroEstado}">Estado</span>
+                </span>
+                <span th:if="${user == null and filtroEstado == null}">
+                    <!-- Si no hay filtros, título normal -->
+                    Gestión de Correos Gmail
+                </span>
+            </h2>
+        </div>
+
+        <div class="col-md-4 text-end">
+            <!-- Botón para crear nuevo correo -->
+            <a th:href="@{/gmails/new}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Correo
+            </a>
+        </div>
+    </div>
+
+    <!-- MENSAJES DE ÉXITO O ERROR -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}">Mensaje de éxito</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}">Mensaje de error</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- FILTROS RÁPIDOS -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-subtitle mb-3 text-muted">
+                <i class="fas fa-filter"></i> Filtros Rápidos
+            </h6>
+            <div class="btn-group" role="group">
+                <!-- Botón para ver todos -->
+                <a th:href="@{/gmails}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-list"></i> Todos
+                </a>
+                <!-- Botón para ver solo activos -->
+                <a th:href="@{/gmails/estado/ACTIVO}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-check-circle"></i> Activos
+                </a>
+                <!-- Botón para ver descartables -->
+                <a th:href="@{/gmails/estado/DESCARTABLE}" class="btn btn-outline-warning btn-sm">
+                    <i class="fas fa-trash-alt"></i> Descartables
+                </a>
+                <!-- Botón para ver bloqueados -->
+                <a th:href="@{/gmails/estado/BLOQUEADO}" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-ban"></i> Bloqueados
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE CORREOS -->
+    <div class="card">
+        <div class="card-body">
+
+            <!-- Solo muestra la tabla si hay correos -->
+            <div th:if="${gmails != null and !gmails.isEmpty()}">
+
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Correo</th>
+                            <th>Contraseña</th>
+                            <th>Usuario Propietario</th>
+                            <th>Estado</th>
+                            <th>Fecha Registro</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!-- th:each: bucle for-each -->
+                        <!-- Por cada gmail en la lista gmails, crea una fila -->
+                        <tr th:each="gmail : ${gmails}">
+
+                            <td th:text="${gmail.id}">1</td>
+
+                            <!-- Correo con ícono -->
+                            <td>
+                                <i class="fas fa-at text-primary"></i>
+                                <span th:text="${gmail.correo}">correo@gmail.com</span>
+                            </td>
+
+                            <!-- Contraseña con botón para mostrar/ocultar -->
+                            <td>
+                                <!-- span con tipo password (oculta con ***) -->
+                                <span class="password-field" style="font-family: monospace;">
+                                    ••••••••
+                                </span>
+                                <!-- Botón para mostrar contraseña (usando JavaScript) -->
+                                <button class="btn btn-sm btn-outline-secondary" type="button"
+                                    onclick="togglePassword(this)" th:attr="data-password=${gmail.contraseña}">
+                                    <!-- th:attr: establece atributos HTML dinámicos -->
+                                    <!-- Guarda la contraseña en un data-attribute -->
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+
+                            <!-- Usuario propietario (necesitamos buscarlo) -->
+                            <td>
+                                <!-- NOTA: Aquí solo tenemos el userId, no el nombre -->
+                                <!-- Opción 1: Mostrar solo el ID -->
+                                <span class="badge bg-info">
+                                    ID: <span th:text="${gmail.userId}">1</span>
+                                </span>
+                                <!-- Opción 2: Enlace para ver correos de ese usuario -->
+                                <a th:href="@{/gmails/user/{id}(id=${gmail.userId})}" class="btn btn-sm btn-link">
+                                    Ver correos de este usuario
+                                </a>
+                            </td>
+
+                            <!-- Estado con badge de color dinámico -->
+                            <td>
+                                <!-- th:classappend: agrega clases según condición -->
+                                <!-- Si estado = ACTIVO → bg-success (verde) -->
+                                <!-- Si estado = DESCARTABLE → bg-warning (amarillo) -->
+                                <!-- Si estado = BLOQUEADO → bg-danger (rojo) -->
+                                <span class="badge"
+                                    th:classappend="${gmail.estado == 'ACTIVO' ? 'bg-success' : 
+                                                          (gmail.estado == 'DESCARTABLE' ? 'bg-warning' : 'bg-danger')}"
+                                    th:text="${gmail.estado}">
+                                    ACTIVO
+                                </span>
+                            </td>
+
+                            <!-- Fecha formateada -->
+                            <td>
+                                <small>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span th:text="${#temporals.format(gmail.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                                        01/01/2025 10:00
+                                    </span>
+                                </small>
+                            </td>
+
+                            <!-- Botones de acciones -->
+                            <td class="text-center">
+                                <!-- VER -->
+                                <a th:href="@{/gmails/{id}(id=${gmail.id})}" class="btn btn-sm btn-info"
+                                    title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <!-- EDITAR -->
+                                <a th:href="@{/gmails/edit/{id}(id=${gmail.id})}" class="btn btn-sm btn-warning"
+                                    title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- ELIMINAR -->
+                                <a th:href="@{/gmails/delete/{id}(id=${gmail.id})}" class="btn btn-sm btn-danger"
+                                    title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este correo?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Contador de registros -->
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        <!-- th:text="|...|": sintaxis de literal string -->
+                        <!-- ${gmails.size()}: llama al método size() de la lista -->
+                        Total de correos: <strong th:text="${gmails.size()}">0</strong>
+                    </small>
+                </div>
+            </div>
+
+            <!-- MENSAJE SI NO HAY CORREOS -->
+            <div th:if="${gmails == null or gmails.isEmpty()}" class="alert alert-info text-center">
+                <i class="fas fa-inbox"></i>
+                No hay correos Gmail registrados.
+                <a th:href="@{/gmails/new}" class="alert-link">Crear el primero</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENLACE PARA VOLVER A USUARIOS -->
+    <div class="mt-3">
+        <a th:href="@{/users}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Usuarios
+        </a>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript para mostrar/ocultar contraseñas -->
+<script>
+    // Función para alternar visibilidad de contraseña
+    function togglePassword(button) {
+        // Obtiene el span de la contraseña (elemento anterior al botón)
+        const passwordSpan = button.previousElementSibling;
+        // Obtiene la contraseña del data-attribute
+        const password = button.getAttribute('data-password');
+        // Obtiene el ícono del botón
+        const icon = button.querySelector('i');
+
+        // Verifica si actualmente está mostrando la contraseña
+        if (passwordSpan.textContent === '••••••••') {
+            // Si está oculta, muestra la contraseña real
+            passwordSpan.textContent = password;
+            // Cambia el ícono a "ojo cerrado"
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            // Si está visible, oculta con asteriscos
+            passwordSpan.textContent = '••••••••';
+            // Cambia el ícono a "ojo abierto"
+            icon.className = 'fas fa-eye';
+        }
+    }
+</script>
 </body>
 
 </html>

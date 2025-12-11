@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${account.id == null ? 'Nueva Cuenta' : 'Editar Cuenta'}">Formulario Cuenta</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+
+                <!-- CARD DEL FORMULARIO -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i th:class="${account.id == null ? 'fas fa-plus-circle' : 'fas fa-edit'}"></i>
+                            <span th:text="${account.id == null ? 'Nueva Cuenta' : 'Editar Cuenta'}">
+                                Formulario
+                            </span>
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- MENSAJES DE ERROR -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span th:text="${error}">Error</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- FORMULARIO -->
+                        <form th:action="${account.id != null ? '/accounts/update/' + account.id : '/accounts'}"
+                            th:object="${account}" method="post">
+
+                            <!-- FILA 1: USUARIO Y CORREO -->
+                            <div class="row">
+                                <!-- CAMPO: USUARIO PROPIETARIO -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="userId" class="form-label">
+                                        <i class="fas fa-user"></i> Usuario Propietario
+                                        <span class="text-danger">*</span>
+                                    </label>
+
+                                    <!-- SELECT de usuarios -->
+                                    <select class="form-select" th:field="*{userId}" id="userSelect"
+                                        onchange="filterGmails()" required>
+                                        <!-- onchange: ejecuta JavaScript cuando cambia la selección -->
+                                        <!-- Filtra los correos Gmail para mostrar solo del usuario seleccionado -->
+
+                                        <option value="">-- Seleccione usuario --</option>
+
+                                        <option th:each="user : ${users}" th:value="${user.id}"
+                                            th:text="|${user.administrador} (ID: ${user.id})|">
+                                            <!-- th:text con |...| para concatenar texto -->
+                                            Usuario
+                                        </option>
+                                    </select>
+
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Propietario de la cuenta
+                                    </div>
+                                </div>
+
+                                <!-- CAMPO: CORREO GMAIL -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="emailId" class="form-label">
+                                        <i class="fas fa-envelope"></i> Correo Gmail
+                                        <span class="text-danger">*</span>
+                                    </label>
+
+                                    <!-- SELECT de correos Gmail -->
+                                    <select class="form-select" th:field="*{emailId}" id="gmailSelect" required>
+
+                                        <option value="">-- Seleccione correo --</option>
+
+                                        <!-- th:each con variable de estado (gmailStat) -->
+                                        <!-- gmailStat.index: índice del elemento (0, 1, 2...) -->
+                                        <option th:each="gmail,gmailStat : ${gmails}" th:value="${gmail.id}"
+                                            th:attr="data-userid=${gmail.userId}"
+                                            th:text="|${gmail.correo} (User ID: ${gmail.userId})|">
+                                            <!-- data-userid: atributo personalizado para filtrar por JavaScript -->
+                                            Correo
+                                        </option>
+                                    </select>
+
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Solo se mostrarán correos del usuario seleccionado
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FILA 2: TIPO Y USUARIO DE LA CUENTA -->
+                            <div class="row">
+                                <!-- CAMPO: TIPO DE CUENTA -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="tipo" class="form-label">
+                                        <i class="fas fa-tag"></i> Tipo de Cuenta
+                                        <span class="text-danger">*</span>
+                                    </label>
+
+                                    <!-- SELECT con opciones predefinidas -->
+                                    <select class="form-select" th:field="*{tipo}" required>
+
+                                        <option value="">-- Seleccione tipo --</option>
+
+                                        <!-- Opciones comunes de servicios -->
+                                        <option value="Netflix">
+                                            🎬 Netflix
+                                        </option>
+                                        <option value="Spotify">
+                                            🎵 Spotify
+                                        </option>
+                                        <option value="Amazon">
+                                            🛒 Amazon Prime
+                                        </option>
+                                        <option value="Disney+">
+                                            ⭐ Disney+
+                                        </option>
+                                        <option value="HBO Max">
+                                            🎭 HBO Max
+                                        </option>
+                                        <option value="YouTube Premium">
+                                            ▶️ YouTube Premium
+                                        </option>
+                                        <option value="Crunchyroll">
+                                            📺 Crunchyroll
+                                        </option>
+                                        <option value="Otro">
+                                            ❓ Otro
+                                        </option>
+                                    </select>
+
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Servicio de streaming o plataforma
+                                    </div>
+                                </div>
+
+                                <!-- CAMPO: USUARIO DE LA CUENTA -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="usuario" class="form-label">
+                                        <i class="fas fa-id-badge"></i> Usuario de la Cuenta
+                                        <span class="text-danger">*</span>
+                                    </label>
+
+                                    <input type="text" class="form-control" th:field="*{usuario}"
+                                        placeholder="Ej: miusuario123" required>
+
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Nombre de usuario o email para login
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FILA 3: CONTRASEÑA Y ESTADO -->
+                            <div class="row">
+                                <!-- CAMPO: CONTRASEÑA -->
+                                <div class="col-md-8 mb-3">
+                                    <label for="contraseña" class="form-label">
+                                        <i class="fas fa-key"></i> Contraseña
+                                        <span class="text-danger">*</span>
+                                    </label>
+
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" th:field="*{contraseña}"
+                                            id="passwordField" placeholder="Contraseña de la cuenta" required>
+
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePasswordVisibility()">
+                                            <i class="fas fa-eye" id="toggleIcon"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Contraseña para acceder a la cuenta
+                                    </div>
+                                </div>
+
+                                <!-- CAMPO: ESTADO ACTIVO -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="activo" class="form-label">
+                                        <i class="fas fa-toggle-on"></i> Estado
+                                    </label>
+
+                                    <!-- SWITCH/TOGGLE para activo/inactivo -->
+                                    <div class="form-check form-switch mt-2">
+                                        <!-- form-switch: estilo de interruptor de Bootstrap -->
+
+                                        <!-- Checkbox que funciona como toggle -->
+                                        <input class="form-check-input" type="checkbox" th:field="*{activo}"
+                                            id="activoSwitch" style="width: 3rem; height: 1.5rem;">
+                                        <!-- th:field en checkbox: si activo=true, marca el checkbox -->
+
+                                        <label class="form-check-label ms-2" for="activoSwitch">
+                                            <!-- Texto dinámico según estado -->
+                                            <strong>
+                                                <span id="estadoText"
+                                                    th:text="${account.activo ? 'Activa' : 'Inactiva'}">
+                                                    Activa
+                                                </span>
+                                            </strong>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-text mt-3">
+                                        <i class="fas fa-info-circle"></i>
+                                        ¿Cuenta activa y en uso?
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CAMPO OCULTO: ID -->
+                            <input type="hidden" th:if="${account.id != null}" th:field="*{id}">
+
+                            <!-- SEPARADOR -->
+                            <hr class="my-4">
+
+                            <!-- BOTONES DE ACCIÓN -->
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/accounts}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i th:class="${account.id == null ? 'fas fa-save' : 'fas fa-check'}"></i>
+                                    <span th:text="${account.id == null ? 'Crear Cuenta' : 'Actualizar Cuenta'}">
+                                        Guardar
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- INFORMACIÓN ADICIONAL (solo en edición) -->
+                        <div th:if="${account.id != null}" class="mt-4">
+                            <hr>
+                            <h6 class="text-muted">
+                                <i class="fas fa-info-circle"></i> Información del Registro
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p class="mb-1">
+                                        <strong>ID:</strong>
+                                        <span th:text="${account.id}">1</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1">
+                                        <strong>Creado:</strong>
+                                        <span th:text="${#temporals.format(account.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2025
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1">
+                                        <strong>Actualizado:</strong>
+                                        <span
+                                            th:text="${#temporals.format(account.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2025
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        // FUNCIÓN: Filtrar correos Gmail según usuario seleccionado
+        function filterGmails() {
+            // Obtiene el select de usuarios
+            const userSelect = document.getElementById('userSelect');
+            // Obtiene el ID del usuario seleccionado
+            const selectedUserId = userSelect.value;
+
+            // Obtiene el select de correos
+            const gmailSelect = document.getElementById('gmailSelect');
+            // Obtiene todas las opciones del select de correos
+            const options = gmailSelect.getElementsByTagName('option');
+
+            // Reinicia la selección
+            gmailSelect.value = '';
+
+            // Itera sobre todas las opciones (excepto la primera que es el placeholder)
+            for (let i = 1; i < options.length; i++) {
+                const option = options[i];
+                // Obtiene el data-userid de la opción
+                const gmailUserId = option.getAttribute('data-userid');
+
+                // Muestra u oculta según coincida con el usuario seleccionado
+                if (selectedUserId === '' || gmailUserId === selectedUserId) {
+                    // Muestra la opción
+                    option.style.display = '';
+                } else {
+                    // Oculta la opción
+                    option.style.display = 'none';
+                }
+            }
+        }
+
+        // FUNCIÓN: Mostrar/ocultar contraseña
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('passwordField');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // FUNCIÓN: Actualizar texto del switch según estado
+        document.addEventListener('DOMContentLoaded', function () {
+            const activoSwitch = document.getElementById('activoSwitch');
+            const estadoText = document.getElementById('estadoText');
+
+            // Agrega evento al switch
+            if (activoSwitch && estadoText) {
+                activoSwitch.addEventListener('change', function () {
+                    // Cambia el texto según el estado del checkbox
+                    estadoText.textContent = this.checked ? 'Activa' : 'Inactiva';
+                    // Cambia el color
+                    estadoText.className = this.checked ? 'text-success' : 'text-secondary';
+                });
+            }
+
+            // Aplica el filtro inicial si hay un usuario pre-seleccionado (en edición)
+            filterGmails();
+        });
+
+        // VALIDACIÓN DEL FORMULARIO
+        document.querySelector('form').addEventListener('submit', function (event) {
+            const userId = document.getElementById('userSelect').value;
+            const emailId = document.getElementById('gmailSelect').value;
+            const tipo = document.querySelector('select[name="tipo"]').value;
+            const usuario = document.querySelector('input[name="usuario"]').value;
+            const contraseña = document.querySelector('input[name="contraseña"]').value;
+
+            // Valida que se haya seleccionado un usuario
+            if (!userId) {
+                event.preventDefault();
+                alert('Debe seleccionar un usuario propietario');
+                return false;
+            }
+
+            // Valida que se haya seleccionado un correo
+            if (!emailId) {
+                event.preventDefault();
+                alert('Debe seleccionar un correo Gmail');
+                return false;
+            }
+
+            // Valida que el tipo no esté vacío
+            if (!tipo) {
+                event.preventDefault();
+                alert('Debe seleccionar un tipo de cuenta');
+                return false;
+            }
+
+            // Valida longitud de usuario
+            if (usuario.trim().length < 3) {
+                event.preventDefault();
+                alert('El usuario debe tener al menos 3 caracteres');
+                return false;
+            }
+
+            // Valida longitud de contraseña
+            if (contraseña.trim().length < 6) {
+                event.preventDefault();
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return false;
+            }
+
+            return true;
+        });
+    </script>
+</body>
+
+</html>
+
+<!-- 
+===== CARACTERÍSTICAS ESPECIALES =====
+
+1. FILTRADO DINÁMICO DE CORREOS:
+   - Al seleccionar un usuario, solo muestra sus correos Gmail
+   - Usa data-userid para identificar a qué usuario pertenece cada correo
+   - JavaScript filtra mostrando/ocultando opciones
+
+2. SWITCH PARA ACTIVO/INACTIVO:
+   - Usa form-switch de Bootstrap
+   - Checkbox grande que parece un toggle
+   - Texto cambia dinámicamente: Activa ↔ Inactiva
+
+3. SELECT DE TIPO PREDEFINIDO:
+   - Opciones comunes: Netflix, Spotify, Amazon, etc.
+   - Con emojis para mejor visualización
+   - Opción "Otro" para servicios no listados
+
+4. VALIDACIONES MÚLTIPLES:
+   - HTML5: required en campos obligatorios
+   - JavaScript: validación de longitudes mínimas
+   - Backend: validación que correo pertenezca al usuario
+
+===== FLUJO DE FILTRADO DE CORREOS =====
+
+1. Usuario selecciona "admin1" (ID: 1)
+   ↓
+2. onChange → filterGmails()
+   ↓
+3. JavaScript obtiene selectedUserId = 1
+   ↓
+4. Itera sobre opciones del select de correos
+   ↓
+5. Compara data-userid de cada opción con selectedUserId
+   ↓
+6. Muestra solo correos donde data-userid = 1
+   ↓
+7. Resultado: solo ve los correos Gmail de admin1
+
+===== th:field EN CHECKBOX =====
+
+<input type="checkbox" th:field="*{activo}">
+
+Si account.getActivo() = true:
+→ <input type="checkbox" checked>
+
+Si account.getActivo() = false:
+→ <input type="checkbox">
+
+Cuando se envía el formulario:
+- checked → activo=true
+- unchecked → activo=false
+
+-->
